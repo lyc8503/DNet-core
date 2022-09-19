@@ -1,6 +1,12 @@
-#include <iostream>
+
+#include "driver/driver.h"
+#include "defs.h"
+
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    driver driver;
+    driver.init_dev();
+    DNET_DEBUG("%s %d", driver.dev, driver.fd);
+
     return 0;
 }
