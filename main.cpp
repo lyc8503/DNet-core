@@ -4,10 +4,11 @@
 
 
 int main() {
-    driver driver;
-    driver.init_dev();
+    driver driver("dnet0");
+    if (!driver.init_dev()) {
+        return -1;
+    }
     DNET_DEBUG("%s %d", driver.dev, driver.fd);
-
 
     // ip link set dev tap0 up
     // ip address add dev tap0 local 10.0.0.1
