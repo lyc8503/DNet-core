@@ -22,7 +22,7 @@ bool driver::init_dev() {
     struct ifreq ifr{};
 
     if ((fd = open("/dev/net/tap", O_RDWR)) < 0) {
-        DNET_DEBUG("ERR: Failed to open TAP device, check permissions or create one with `mknod /dev/net/tap c 10 200`.");
+        DNET_ERROR("Failed to open TAP device, check permissions or create one with `mknod /dev/net/tap c 10 200`.");
         return false;
     }
 
@@ -35,7 +35,7 @@ bool driver::init_dev() {
     strncpy(ifr.ifr_name, this->dev, IFNAMSIZ);
 
     if (ioctl(fd, TUNSETIFF, (void *) &ifr) < 0) {
-        DNET_DEBUG("ERR: Could not ioctl tun: %s", strerror(errno));
+        DNET_ERROR("Could not ioctl tun: %s", strerror(errno));
         close(fd);
         return false;
     }
@@ -50,7 +50,7 @@ ssize_t driver::read(uint8_t *buf, size_t size) {
 
     ssize_t ret = ::read(this->fd, buf, size);
     if (ret < 0) {
-        DNET_DEBUG("Device read error: %s", strerror(errno));
+        DNET_ERROR("Device read error: %s", strerror(errno));
     }
     return ret;
 }
@@ -59,7 +59,7 @@ ssize_t driver::write(uint8_t *buf, size_t size) {
 
     ssize_t ret = ::write(this->fd, buf, size);
     if (ret < 0) {
-        DNET_DEBUG("Device write error: %s", strerror(errno));
+        DNET_ERROR("Device write error: %s", strerror(errno));
     }
     return ret;
 }
