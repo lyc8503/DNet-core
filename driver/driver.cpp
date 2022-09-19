@@ -47,11 +47,19 @@ bool driver::init_dev() {
 }
 
 ssize_t driver::read(uint8_t *buf, size_t size) {
-    return 0;
+
+    ssize_t ret = ::read(this->fd, buf, size);
+    if (ret < 0) {
+        DNET_DEBUG("Device read error: %s", strerror(errno));
+    }
+    return ret;
 }
 
 ssize_t driver::write(uint8_t *buf, size_t size) {
-    return 0;
+
+    ssize_t ret = ::write(this->fd, buf, size);
+    if (ret < 0) {
+        DNET_DEBUG("Device write error: %s", strerror(errno));
+    }
+    return ret;
 }
-
-
