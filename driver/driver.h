@@ -9,6 +9,8 @@
 #include <linux/if_tun.h>
 #include <cstdint>
 #include <string>
+#include <thread>
+#include <functional>
 
 
 // Refer to https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/networking/tuntap.rst?id=HEAD
@@ -19,13 +21,17 @@ public:
     explicit driver(const std::string& dev);
     bool init_dev();
     char dev[IFNAMSIZ]{};
-    int fd = -1;
-
     ssize_t read(uint8_t* buf, size_t size);
     ssize_t write(uint8_t* buf, size_t size);
 
+    void set_callback(std::function<void(void*, size_t)>& callback);
+    void start_listen();
+    void stop_listen();
 private:
-
+    int fd = -1;
+    std::thread* thread;
+    std::function<void(void*, size_t)>* callback;
+    void do_listen();
 };
 
 
