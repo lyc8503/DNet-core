@@ -12,6 +12,8 @@
 
 
 
+#define TEMP_MTU 1500
+
 driver::driver() = default;
 
 driver::driver(const std::string& dev) {
@@ -43,6 +45,16 @@ bool driver::init_dev() {
     /* if the operation was successful, write back the name of the
      * interface to the variable "dev". */
     strcpy(this->dev, ifr.ifr_name);
+
+    // ip link set dev tap0 up
+    int ret = system(("ip link set dev " + std::string(this->dev) + " up").c_str());
+    if (ret) {
+        DNET_ERROR("Failed to ip set link up.");
+        return false;
+    }
+
+    // ip address add dev tap0 local 10.0.0.1
+    // ip route add dev tap0 10.0.0.0/24
     return true;
 }
 
@@ -62,4 +74,26 @@ ssize_t driver::write(uint8_t *buf, size_t size) {
         DNET_ERROR("Device write error: %s", strerror(errno));
     }
     return ret;
+}
+
+void driver::set_callback(std::function<void(void *, size_t)>& callback) {
+    this->callback = &callback;
+}
+
+void driver::do_listen() {
+    while (true) {
+        ssize_t t;
+        uint8_t d[TEMP_MTU];
+        t = this->read(d, TEMP_MTU);
+
+        (*this->callback)(d, t);
+    }
+}
+
+void driver::start_listen() {
+    this->thread = new std::thread(&driver::do_listen, this);
+}
+
+void driver::stop_listen() {
+
 }
