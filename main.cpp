@@ -1,11 +1,15 @@
 
+#include <csignal>
 #include "driver/driver.h"
 #include "defs.h"
 #include "ethernet/EthernetLayer.h"
 
 
 void test_recv(void* buf, size_t size) {
-    printf("%x", ((char*)buf)[0]);
+    for (int i = 0; i < size; i++) {
+        printf("%x ", ((uint8_t *)buf)[i]);
+    }
+    printf("\n");
 }
 
 int main() {
@@ -30,13 +34,13 @@ int main() {
 //        uint8_t d[1024];
 //        t = driver.read(d, 1024);
 //
-//        for (int i = 0; i < t; i++) {
-//            printf("%x ", d[i]);
-//        }
+//
 //        printf("\n");
 //    }
 
-    while(1);
+    while (1) {
+        sleep(10);
+    }
 
     return 0;
 }

@@ -86,6 +86,8 @@ void driver::do_listen() {
         uint8_t d[TEMP_MTU];
         t = this->read(d, TEMP_MTU);
 
+        DNET_DEBUG("TEST");
+
         (*this->callback)(d, t);
     }
 }
