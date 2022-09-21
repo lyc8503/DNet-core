@@ -1,7 +1,6 @@
 
 #include <csignal>
 #include "driver/driver.h"
-#include "defs.h"
 #include "ethernet/EthernetLayer.h"
 
 
@@ -13,17 +12,16 @@ void test_recv(void* buf, size_t size) {
 }
 
 int main() {
-    driver driver("dnet0");
+    driver driver("dnet0", 1500);
     if (!driver.init_dev()) {
         return -1;
     }
 
     std::function<void(void *, size_t)> a(test_recv);
-
-    driver.set_callback(a);
+    driver.set_callback(&a);
     driver.start_listen();
-//    DNET_DEBUG("%s %d", driver.dev, driver.fd);
 
+//    DNET_DEBUG("%s %d", driver.dev, driver.fd);
 
 //    EthernetLayer l2(driver);
 

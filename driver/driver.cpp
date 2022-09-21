@@ -7,19 +7,19 @@
 #include <unistd.h>
 #include "driver.h"
 #include <sys/ioctl.h>
+#include <stdexcept>
 
 #include "../defs.h"
 
 
-
-#define TEMP_MTU 1500
-
 driver::driver() = default;
 
-driver::driver(const std::string& dev) {
+driver::driver(const std::string& dev, size_t mtu) {
     strncpy(this->dev, dev.c_str(), IFNAMSIZ);
+    this->mtu = mtu;
 }
 
+// init device for read on linux
 bool driver::init_dev() {
     struct ifreq ifr{};
 
@@ -59,7 +59,6 @@ bool driver::init_dev() {
 }
 
 ssize_t driver::read(uint8_t *buf, size_t size) {
-
     ssize_t ret = ::read(this->fd, buf, size);
     if (ret < 0) {
         DNET_ERROR("Device read error: %s", strerror(errno));
@@ -68,7 +67,6 @@ ssize_t driver::read(uint8_t *buf, size_t size) {
 }
 
 ssize_t driver::write(uint8_t *buf, size_t size) {
-
     ssize_t ret = ::write(this->fd, buf, size);
     if (ret < 0) {
         DNET_ERROR("Device write error: %s", strerror(errno));
@@ -76,26 +74,33 @@ ssize_t driver::write(uint8_t *buf, size_t size) {
     return ret;
 }
 
-void driver::set_callback(std::function<void(void *, size_t)>& callback) {
-    this->callback = &callback;
+void driver::set_callback(std::function<void(void *, size_t)>* callback) {
+    this->callback = callback;
 }
 
 void driver::do_listen() {
-    while (true) {
-        ssize_t t;
-        uint8_t d[TEMP_MTU];
-        t = this->read(d, TEMP_MTU);
+    DNET_DEBUG("Driver do listen start.");
+    while (do_listen_flag) {
+        ssize_t ret;
+        uint8_t data[this->mtu];
+        ret = this->read(data, this->mtu);
 
-        DNET_DEBUG("TEST");
+        DNET_DEBUG("Driver payload recv: %ld bytes", ret);
 
-        (*this->callback)(d, t);
+        (*this->callback)(data, ret);
     }
+    DNET_DEBUG("Driver do listen exit.");
 }
 
 void driver::start_listen() {
+    if (this->thread == nullptr) {
+        throw std::logic_error("No callback set.");
+    }
+    do_listen_flag = true;
     this->thread = new std::thread(&driver::do_listen, this);
 }
 
 void driver::stop_listen() {
-
+    do_listen_flag = false;
+    this->thread = nullptr;
 }
