@@ -11,6 +11,7 @@
 #include <string>
 #include <thread>
 #include <functional>
+#include <atomic>
 
 
 // Refer to https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/networking/tuntap.rst?id=HEAD
@@ -34,7 +35,7 @@ private:
     std::thread* thread;
     std::function<void(void*, size_t)>* callback;
     void do_listen();
-    bool do_listen_flag = false;
+    std::atomic_bool do_listen_flag;
 };
 
 
