@@ -49,14 +49,13 @@ bool driver::init_dev() {
     // ip link set dev tap0 up
     int ret = system(("ip link set dev " + std::string(this->dev) + " up").c_str());
     if (ret) {
-        DNET_ERROR("Failed to ip set link up.");
+        DNET_ERROR("Failed to ip set link up: %d", ret);
         return false;
     }
 
-    // ip address add dev tap0 local 10.0.0.1
-    // ip route add dev tap0 10.0.0.0/24
     return true;
 }
+
 
 ssize_t driver::read(uint8_t *buf, size_t size) {
     ssize_t ret = ::read(this->fd, buf, size);
@@ -103,4 +102,22 @@ void driver::start_listen() {
 void driver::stop_listen() {
     do_listen_flag = false;
     this->thread = nullptr;
+}
+
+bool driver::add_ip(const std::string& ip_addr) {
+    // The arg `ip_addr` is not checked!
+    int ret = system(("ip address add dev " + std::string(this->dev) + " local " + ip_addr).c_str());
+    if (ret) {
+        DNET_ERROR("Add ip failed: %d", ret);
+    }
+    return ret == 0;
+}
+
+bool driver::add_route(const std::string& route) {
+    // The arg `route` is not checked!
+    int ret = system(("ip route add dev " + std::string(this->dev) + " " + route).c_str());
+    if (ret) {
+        DNET_ERROR("Add route failed: %d", ret);
+    }
+    return ret == 0;
 }

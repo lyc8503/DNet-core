@@ -21,6 +21,9 @@ public:
     driver();
     explicit driver(const std::string& dev, size_t mtu);
     bool init_dev();
+    bool add_ip(const std::string& ip_addr);
+    bool add_route(const std::string& route);
+
     char dev[IFNAMSIZ]{};
     ssize_t read(uint8_t* buf, size_t size);
     ssize_t write(uint8_t* buf, size_t size);
