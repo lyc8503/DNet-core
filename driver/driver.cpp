@@ -81,8 +81,8 @@ void driver::do_listen() {
     DNET_DEBUG("Driver do listen start.");
     while (do_listen_flag) {
         ssize_t ret;
-        uint8_t data[this->mtu];
-        ret = this->read(data, this->mtu);
+        uint8_t data[this->mtu + 18];
+        ret = this->read(data, this->mtu + 18);
 
         DNET_DEBUG("Driver payload recv: %ld bytes", ret);
 

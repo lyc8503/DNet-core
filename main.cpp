@@ -5,21 +5,23 @@
 #include "ethernet/EthernetLayer.h"
 
 
+EthernetLayer ethernet_layer;
+
 void test_recv(void* buf, size_t size) {
     for (int i = 0; i < size; i++) {
         printf("%x ", ((uint8_t *)buf)[i]);
     }
+
     printf("\n");
+    ethernet_layer.on_recv(buf, size);
 }
 
 int main() {
     driver driver("dnet0", 1500);
-
     assert(driver.init_dev());
 
 //  We will manage ip by ourselves
 //    driver.add_ip("10.0.0.1");
-
     assert(driver.add_route("10.0.0.0/24"));
 
     std::function<void(void *, size_t)> a(test_recv);
