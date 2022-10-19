@@ -5,16 +5,17 @@
 #ifndef DNET_ETHERNETLAYER_H
 #define DNET_ETHERNETLAYER_H
 
-#include "../Layer.h"
-#include "../driver/driver.h"
+#include "../../Layer.h"
+#include "../../../driver/driver.h"
+#include "../../defs.h"
 
 
 #pragma pack(1)
 // https://en.wikipedia.org/wiki/Ethernet_frame
 struct EthernetFrame {
-    uint8_t dest_mac[6];
-    uint8_t src_mac[6];
-    uint8_t ether_type[2];
+    MacAddress dest_mac;
+    MacAddress src_mac;
+    uint16_t ether_type;
     uint8_t payload_and_checksum[0];
 };
 #pragma pack()
