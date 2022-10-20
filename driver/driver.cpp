@@ -8,7 +8,8 @@
 #include "driver.h"
 #include <sys/ioctl.h>
 #include <stdexcept>
-
+#include <arpa/inet.h>
+#include <net/route.h>
 #include "../defs.h"
 
 
@@ -46,12 +47,19 @@ bool driver::init_dev() {
      * interface to the variable "dev". */
     strcpy(this->dev, ifr.ifr_name);
 
-    // ip link set dev tap0 up
-    int ret = system(("ip link set dev " + std::string(this->dev) + " up").c_str());
-    if (ret) {
-        DNET_ERROR("Failed to ip set link up: %d", ret);
+    // set device up
+    int fd_;
+    ifr.ifr_flags |= (IFF_UP | IFF_RUNNING);
+    if ((fd_ = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP)) < 0) {
+        DNET_ERROR("Failed to open socket on PF_INET.");
         return false;
     }
+    if (ioctl(fd_, SIOCSIFFLAGS, &ifr) < 0) {
+        DNET_ERROR("Could not ioctl set flag: %s", strerror(errno));
+        close(fd_);
+        return false;
+    }
+    close(fd_);
 
     return true;
 }
@@ -104,20 +112,74 @@ void driver::stop_listen() {
     this->thread = nullptr;
 }
 
-bool driver::add_ip(const std::string& ip_addr) {
-    // The arg `ip_addr` is not checked!
-    int ret = system(("ip address add dev " + std::string(this->dev) + " local " + ip_addr).c_str());
-    if (ret) {
-        DNET_ERROR("Add ip failed: %d", ret);
+// add a ip address to the TAP dev
+bool driver::add_ip(const std::string& ip_addr, const std::string& net_mask) {
+    int fd_ = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
+
+    if (fd_ < 0) {
+        DNET_ERROR("Add ip socket open failed.");
+        return false;
     }
-    return ret == 0;
+
+    struct ifreq ifr{};
+    strncpy(ifr.ifr_name, this->dev, IFNAMSIZ);
+    ifr.ifr_addr.sa_family = AF_INET;
+
+    auto* addr = (struct sockaddr_in*) &ifr.ifr_addr;
+    if (inet_pton(AF_INET, ip_addr.c_str(), &addr->sin_addr) < 0) {
+        goto error;
+    }
+    if (ioctl(fd_, SIOCSIFADDR, &ifr) < 0) {
+        goto error;
+    }
+
+    if (inet_pton(AF_INET, net_mask.c_str(), &addr->sin_addr) < 0) {
+        goto error;
+    }
+    if (ioctl(fd_, SIOCSIFNETMASK, &ifr) < 0) {
+        goto error;
+    }
+
+    close(fd_);
+    return true;
+
+error:
+    DNET_ERROR("Add ip failed: %s", strerror(errno));
+    close(fd_);
+    return false;
 }
 
-bool driver::add_route(const std::string& route) {
-    // The arg `route` is not checked!
-    int ret = system(("ip route add dev " + std::string(this->dev) + " " + route).c_str());
-    if (ret) {
-        DNET_ERROR("Add route failed: %d", ret);
+// add a route to the TAP dev
+bool driver::add_route(const std::string& dest, const std::string& gen_mask) {
+
+    int fd_ = socket( PF_INET, SOCK_DGRAM,  IPPROTO_IP);
+
+    if (fd_ < 0) {
+        DNET_ERROR("Add route socket open failed.");
+        return false;
     }
-    return ret == 0;
+
+    struct rtentry rt{};
+
+    rt.rt_dev = this->dev;
+
+    auto* addr = (struct sockaddr_in*) &rt.rt_dst;
+    addr->sin_family = AF_INET;
+    addr->sin_addr.s_addr = inet_addr(dest.c_str());
+
+    addr = (struct sockaddr_in*) &rt.rt_genmask;
+    addr->sin_family = AF_INET;
+    addr->sin_addr.s_addr = inet_addr(gen_mask.c_str());
+
+    rt.rt_flags = RTF_UP | RTF_HOST;
+    rt.rt_metric = 0;
+
+    if (ioctl(fd_, SIOCADDRT, &rt) < 0) {
+        DNET_ERROR("Add route failed: %s", strerror(errno));
+        close(fd_);
+        return false;
+    }
+
+    close(fd_);
+    return true;
 }

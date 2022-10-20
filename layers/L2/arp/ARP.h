@@ -7,7 +7,11 @@
 
 
 class ARP {
+public:
 
+    void on_recv() {
+
+    }
 };
 
 
