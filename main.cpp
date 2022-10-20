@@ -2,17 +2,12 @@
 #include <csignal>
 #include <cassert>
 #include "driver/driver.h"
-#include "ethernet/EthernetLayer.h"
+#include "layers/L2/L2.h"
 
 
-EthernetLayer ethernet_layer;
+L2 ethernet_layer;
 
 void test_recv(void* buf, size_t size) {
-    for (int i = 0; i < size; i++) {
-        printf("%x ", ((uint8_t *)buf)[i]);
-    }
-
-    printf("\n");
     ethernet_layer.on_recv(buf, size);
 }
 
