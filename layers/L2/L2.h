@@ -4,19 +4,19 @@
 
 #ifndef DNET_L2_H
 #define DNET_L2_H
-
-
-#pragma pack(1)
-
 #include <cstdint>
 #include "../Layer.h"
 #include "../defs.h"
 
+
+#define ETHERNET_FRAME_HEADER_LEN 14
+
+#pragma pack(1)
 // https://en.wikipedia.org/wiki/Ethernet_frame
 struct EthernetFrame {
     MacAddress dest_mac;
     MacAddress src_mac;
-    uint16_be ether_type[2];
+    uint16_be ether_type;
     uint8_t payload_and_checksum[0];
 };
 #pragma pack()
