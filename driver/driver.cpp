@@ -93,7 +93,7 @@ ssize_t driver::write(uint8_t *buf, size_t size) {
     return ret;
 }
 
-void driver::set_callback(std::function<void(void *, size_t)>* callback) {
+void driver::set_callback(std::function<void(void *, size_t)> callback) {
     this->callback = callback;
 }
 
@@ -106,13 +106,13 @@ void driver::do_listen() {
 
         DNET_DEBUG("Driver payload recv: %ld bytes", ret);
 
-        (*this->callback)(data, ret);
+        this->callback(data, ret);
     }
     DNET_DEBUG("Driver do listen exit.");
 }
 
 void driver::start_listen() {
-    if (this->thread == nullptr) {
+    if (this->callback == nullptr) {
         throw std::logic_error("No callback set.");
     }
     do_listen_flag = true;
@@ -121,6 +121,7 @@ void driver::start_listen() {
 
 void driver::stop_listen() {
     do_listen_flag = false;
+    delete this->thread;
     this->thread = nullptr;
 }
 

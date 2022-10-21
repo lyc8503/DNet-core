@@ -12,13 +12,11 @@
 class DNet {
 
 public:
-    driver* driver;
+    driver* dri;
     L2* ethernet_layer;
 
     void init();
 
-private:
-    void L2_on_recv(void* buf, size_t size);
 };
 
 

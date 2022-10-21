@@ -28,7 +28,7 @@ public:
     ssize_t read(uint8_t* buf, size_t size);
     ssize_t write(uint8_t* buf, size_t size);
 
-    void set_callback(std::function<void(void*, size_t)>* callback);
+    void set_callback(std::function<void(void*, size_t)> callback);
     void start_listen();
     void stop_listen();
 
@@ -38,7 +38,7 @@ private:
     int fd = -1;
     size_t mtu = 1500;
     std::thread* thread;
-    std::function<void(void*, size_t)>* callback;
+    std::function<void(void*, size_t)> callback;
     void do_listen();
     std::atomic_bool do_listen_flag;
     uint8_t mac[6];
