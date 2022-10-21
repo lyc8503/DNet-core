@@ -11,15 +11,13 @@
 
 #define ETHERNET_FRAME_HEADER_LEN 14
 
-#pragma pack(1)
 // https://en.wikipedia.org/wiki/Ethernet_frame
 struct EthernetFrame {
     MacAddress dest_mac;
     MacAddress src_mac;
     uint16_be ether_type;
     uint8_t payload_and_checksum[0];
-};
-#pragma pack()
+} __attribute__((packed));
 
 enum EtherType {
     ARP = 0x0806,

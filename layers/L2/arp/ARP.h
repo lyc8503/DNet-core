@@ -15,7 +15,6 @@ enum ARP_OPCODE {
     ARP_REQUEST = 1, ARP_RESPONSE = 2
 };
 
-#pragma pack(1)
 // https://zh.wikipedia.org/zh-sg/%E5%9C%B0%E5%9D%80%E8%A7%A3%E6%9E%90%E5%8D%8F%E8%AE%AE
 struct ArpPayload {
     uint16_be htype;
@@ -49,9 +48,7 @@ struct ArpPayload {
         ss << ", dest_mac=" << dest_mac.to_string() << ", dest_ip=" << dest_ip.to_string() << "]";
         return ss.str();
     }
-};
-
-#pragma pack()
+} __attribute__((packed));
 
 
 
