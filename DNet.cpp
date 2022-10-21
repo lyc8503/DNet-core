@@ -6,24 +6,21 @@
 #include "DNet.h"
 
 void DNet::init() {
-    driver = new class driver("dnet0", 1500);
+    dri = new class driver("dnet0", 1500);
 
-
-    assert(driver->init_dev());
+    assert(dri->init_dev());
 //  We will manage ip by ourselves
 //    assert(driver.add_ip("10.0.0.1", "255.255.255.0"));
 
-    assert(driver->add_route("10.0.0.0", "255.255.255.0"));
-
+    assert(dri->add_route("10.0.0.0", "255.255.255.0"));
 
     ethernet_layer = new L2();
 
-//    std::function<void(void *, size_t)> *callback(&this->L2_on_recv);
-//    driver->set_callback(callback);
-//    driver->start_listen();
+    std::function<void(void *, size_t)> L2_on_recv = [&](void* buf, size_t size) -> void {
+        this->ethernet_layer->on_recv(buf, size);
+    };
 
-}
+    dri->set_callback(L2_on_recv);
+    dri->start_listen();
 
-void DNet::L2_on_recv(void *buf, size_t size) {
-    this->ethernet_layer->on_recv(buf, size);
 }
