@@ -10,8 +10,6 @@
 #include <sstream>
 #include <iomanip>
 
-#pragma pack(1)
-
 union uint16_be {
     uint8_t bytes[2];
 
@@ -60,9 +58,7 @@ union Ipv4Address {
         ss << (int) bytes[0] << "." << (int) bytes[1] << "."<< (int) bytes[2] << "."<< (int) bytes[3];
         return ss.str();
     }
-};
-
-#pragma pack()
+} __attribute__((packed));
 
 
 #endif //DNET_LAYERS_DEFS_H

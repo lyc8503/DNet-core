@@ -8,7 +8,7 @@
 #include "../../defs.h"
 #include "arp/ARP.h"
 
-
+// TODO: move into class
 class ARP arp;
 
 ssize_t L2::send(void *buf, size_t size) {
