@@ -10,6 +10,8 @@
 #include <stdexcept>
 #include <arpa/inet.h>
 #include <net/route.h>
+#include <sstream>
+#include <iomanip>
 #include "../defs.h"
 
 
@@ -22,6 +24,8 @@ driver::driver(const std::string& dev, size_t mtu) {
 
 // init device for read on linux
 bool driver::init_dev() {
+    static_assert(IFHWADDRLEN == 6, "Hardware address length is not 6 on this platform.");
+
     struct ifreq ifr{};
 
     if ((fd = open("/dev/net/tap", O_RDWR)) < 0) {
@@ -59,8 +63,16 @@ bool driver::init_dev() {
         close(fd_);
         return false;
     }
+
+    // fetch hwaddr (mac)
+    if (ioctl(fd_, SIOCGIFHWADDR, &ifr) < 0) {
+        DNET_ERROR("Could not ioctl get hwaddr: %s", strerror(errno));
+        close(fd_);
+        return false;
+    }
     close(fd_);
 
+    memcpy(mac, &ifr.ifr_hwaddr, 6);
     return true;
 }
 
@@ -182,4 +194,8 @@ bool driver::add_route(const std::string& dest, const std::string& gen_mask) {
 
     close(fd_);
     return true;
+}
+
+const uint8_t* driver::get_mac() {
+    return mac;
 }

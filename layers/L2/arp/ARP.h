@@ -10,8 +10,12 @@
 #include "../../defs.h"
 
 
-#pragma pack(1)
+// RARP is not included
+enum ARP_OPCODE {
+    ARP_REQUEST = 1, ARP_RESPONSE = 2
+};
 
+#pragma pack(1)
 // https://zh.wikipedia.org/zh-sg/%E5%9C%B0%E5%9D%80%E8%A7%A3%E6%9E%90%E5%8D%8F%E8%AE%AE
 struct ArpPayload {
     uint16_be htype;
@@ -24,20 +28,39 @@ struct ArpPayload {
     Ipv4Address src_ip;
     MacAddress dest_mac;
     Ipv4Address dest_ip;
+
+    std::string to_string() {
+        std::stringstream ss;
+
+        ss << "ARP Payload [op=";
+
+        switch (opcode.val()) {
+            case ARP_REQUEST:
+                ss << "ARP_REQUEST";
+                break;
+            case ARP_RESPONSE:
+                ss << "ARP_RESPONSE";
+                break;
+            default:
+                break;
+        }
+
+        ss << ", src_mac=" << src_mac.to_string() << ", src_ip=" << src_ip.to_string();
+        ss << ", dest_mac=" << dest_mac.to_string() << ", dest_ip=" << dest_ip.to_string() << "]";
+        return ss.str();
+    }
 };
 
 #pragma pack()
 
-// RARP is not included
-enum ARP_OPCODE {
-    ARP_REQUEST = 1, ARP_RESPONSE = 2
-};
+
 
 class ARP {
 public:
 
     ssize_t send(void* buf, size_t size);
     void on_recv(void* buf, size_t size);
+
 };
 
 

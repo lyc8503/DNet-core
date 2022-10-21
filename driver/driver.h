@@ -32,6 +32,8 @@ public:
     void start_listen();
     void stop_listen();
 
+    const uint8_t* get_mac();
+
 private:
     int fd = -1;
     size_t mtu = 1500;
@@ -39,6 +41,7 @@ private:
     std::function<void(void*, size_t)>* callback;
     void do_listen();
     std::atomic_bool do_listen_flag;
+    uint8_t mac[6];
 };
 
 
