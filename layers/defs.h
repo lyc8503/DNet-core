@@ -56,8 +56,9 @@ union Ipv4Address {
     uint8_t bytes[4];
 
     std::string to_string() {
-        // TODO
-        return nullptr;
+        std::stringstream ss;
+        ss << (int) bytes[0] << "." << (int) bytes[1] << "."<< (int) bytes[2] << "."<< (int) bytes[3];
+        return ss.str();
     }
 };
 
