@@ -18,7 +18,7 @@ int main() {
 //  We will manage ip by ourselves
 //    assert(driver.add_ip("10.0.0.1", "255.255.255.0"));
 
-    assert(driver.add_route("10.0.0.0", "255.0.0.0"));
+    assert(driver.add_route("10.0.0.0", "255.255.255.0"));
 
     std::function<void(void *, size_t)> a(test_recv);
     driver.set_callback(&a);
