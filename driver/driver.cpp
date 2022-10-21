@@ -171,7 +171,7 @@ bool driver::add_route(const std::string& dest, const std::string& gen_mask) {
     addr->sin_family = AF_INET;
     addr->sin_addr.s_addr = inet_addr(gen_mask.c_str());
 
-    rt.rt_flags = RTF_UP | RTF_HOST;
+    rt.rt_flags = RTF_UP;
     rt.rt_metric = 0;
 
     if (ioctl(fd_, SIOCADDRT, &rt) < 0) {
