@@ -4,10 +4,13 @@
 
 #ifndef DNET_L2_H
 #define DNET_L2_H
+
 #include <cstdint>
 #include "../Layer.h"
 #include "../defs.h"
+#include "../../DNet.h"
 
+class DNet;
 
 #define ETHERNET_FRAME_HEADER_LEN 14
 
@@ -24,13 +27,17 @@ enum EtherType {
     IP = 0x0800
 };
 
-class L2: Layer{
+class L2 : Layer {
 
 public:
-    explicit L2();
+    explicit L2(DNet *context);
 
-    ssize_t send(void* buf, size_t size) override;
-    void on_recv(void* buf, size_t size) override;
+    ssize_t send(void *buf, size_t size) override;
+
+    void on_recv(void *buf, size_t size) override;
+
+private:
+    DNet *context;
 };
 
 

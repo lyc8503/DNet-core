@@ -5,18 +5,24 @@
 #ifndef DNET_DNET_H
 #define DNET_DNET_H
 
-
-#include "layers/L2/L2.h"
 #include "driver/driver.h"
+#include "layers/defs.h"
+#include "layers/L2/L2.h"
+
+class L2;
+
 
 class DNet {
 
 public:
-    driver* dri;
-    L2* ethernet_layer;
+    DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const std::string &gen_mask);
 
-    void init();
+    driver *dri;
+    L2 *ethernet_layer;
 
+private:
+    Ipv4Address dest_ip;
+    Ipv4Address gen_mask;
 };
 
 

@@ -5,9 +5,8 @@
 
 int main() {
 
-    DNet dnet;
+    DNet dnet("dnet0", 1500, "10.0.0.0", "255.255.255.0");
 
-    dnet.init();
 
     while (true) {
         sleep(10);

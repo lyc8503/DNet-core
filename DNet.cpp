@@ -2,25 +2,48 @@
 // Created by lyc8503 on 2022/10/21.
 //
 
-#include <cassert>
+#include <cstring>
 #include "DNet.h"
 
-void DNet::init() {
-    dri = new class driver("dnet0", 1500);
+DNet::DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const std::string &gen_mask) {
+    /**
+     * initialize args
+     */
+    this->dest_ip.parse_string(dest_ip);
+    this->gen_mask.parse_string(gen_mask);
 
-    assert(dri->init_dev());
+
+    /**
+     * initialize driver
+     */
+    dri = new class driver(ifname, mtu);
+    if (!dri->init_dev()) {
+        throw std::runtime_error("Driver init failed.");
+    }
+
 //  We will manage ip by ourselves
-//    assert(driver.add_ip("10.0.0.1", "255.255.255.0"));
+//  assert(driver.add_ip("10.0.0.1", "255.255.255.0"));
+    if (!dri->add_route(this->dest_ip.to_string(), this->gen_mask.to_string())) {
+        throw std::runtime_error("Driver add route failed.");
+    }
 
-    assert(dri->add_route("10.0.0.0", "255.255.255.0"));
+    /**
+     * initialize ethernet layer
+     */
+    ethernet_layer = new class L2(this);
 
-    ethernet_layer = new L2();
-
-    std::function<void(void *, size_t)> L2_on_recv = [&](void* buf, size_t size) -> void {
+    std::function<void(void *, size_t)> L2_on_recv = [&](void *buf, size_t size) -> void {
         this->ethernet_layer->on_recv(buf, size);
     };
 
     dri->set_callback(L2_on_recv);
-    dri->start_listen();
 
+
+
+
+
+    /**
+     * all layers are initialized, start!
+     */
+    dri->start_listen();
 }

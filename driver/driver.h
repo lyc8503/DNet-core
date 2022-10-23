@@ -25,6 +25,8 @@ public:
     bool add_route(const std::string& dest, const std::string& gen_mask);
 
     char dev[IFNAMSIZ]{};
+    size_t mtu;
+
     ssize_t read(uint8_t* buf, size_t size);
     ssize_t write(uint8_t* buf, size_t size);
 
@@ -36,7 +38,6 @@ public:
 
 private:
     int fd = -1;
-    size_t mtu = 1500;
     std::thread* thread;
     std::function<void(void*, size_t)> callback;
     void do_listen();
