@@ -9,6 +9,8 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <cstring>
+
 
 union uint16_be {
     uint8_t bytes[2];
@@ -16,7 +18,14 @@ union uint16_be {
     uint16_t val() {
         return ((uint16_t) bytes[0] << 8) + bytes[1];
     }
-};
+
+    uint16_be &operator=(const uint16_t &val) {
+        bytes[1] = val & 0xff;
+        bytes[0] = (val & 0xff00) >> 8;
+
+        return *this;
+    }
+} __attribute__((packed));
 
 union uint32_be {
     uint8_t bytes[4];
@@ -24,7 +33,16 @@ union uint32_be {
     uint32_t val() {
         return ((uint32_t) bytes[0] << 24) + ((uint32_t) bytes[1] << 16) + ((uint32_t) bytes[2] << 8) + bytes[3];
     }
-};
+
+    uint32_be &operator=(const uint32_t &val) {
+        bytes[3] = val & 0xff;
+        bytes[2] = (val & 0xff00) >> 8;
+        bytes[1] = (val & 0xff0000) >> 16;
+        bytes[0] = (val & 0xff000000) >> 24;
+
+        return *this;
+    }
+} __attribute__((packed));
 
 union MacAddress {
     uint8_t bytes[6];
@@ -47,7 +65,14 @@ union MacAddress {
                bytes[4] == 0xff &&
                bytes[5] == 0xff;
     }
-};
+
+    MacAddress &operator=(const MacAddress &mac) {
+        if (this != &mac) {
+            memcpy(this->bytes, mac.bytes, 6);
+        }
+        return *this;
+    }
+} __attribute__((packed));
 
 union Ipv4Address {
     uint32_be data;
@@ -55,17 +80,17 @@ union Ipv4Address {
 
     std::string to_string() {
         std::stringstream ss;
-        ss << (int) bytes[0] << "." << (int) bytes[1] << "."<< (int) bytes[2] << "."<< (int) bytes[3];
+        ss << (int) bytes[0] << "." << (int) bytes[1] << "." << (int) bytes[2] << "." << (int) bytes[3];
         return ss.str();
     }
 
-    void parse_string(const std::string& ip_str) {
+    void parse_string(const std::string &ip_str) {
         int x1, x2, x3, x4;
         if (sscanf(ip_str.c_str(), "%d.%d.%d.%d", &x1, &x2, &x3, &x4) != 4) {
             throw std::invalid_argument("Invalid ipv4 address: " + ip_str);
         }
 
-        if (x1 >= 0 && x2 >= 0 && x3 >= 0 && x4 >=0 && x1 <= 255 && x2 <= 255 && x3 <= 255 && x4 <= 255) {
+        if (x1 >= 0 && x2 >= 0 && x3 >= 0 && x4 >= 0 && x1 <= 255 && x2 <= 255 && x3 <= 255 && x4 <= 255) {
             this->bytes[0] = x1;
             this->bytes[1] = x2;
             this->bytes[2] = x3;
@@ -74,7 +99,26 @@ union Ipv4Address {
             throw std::invalid_argument("Invalid ipv4 address: " + ip_str);
         }
     }
+
+    Ipv4Address &operator=(const Ipv4Address &ipv4) {
+        if (this != &ipv4) {
+            memcpy(bytes, ipv4.bytes, 4);
+        }
+        return *this;
+    }
 } __attribute__((packed));
 
+struct Ipv4Subnet {
+
+    Ipv4Address network;
+    Ipv4Address mask;
+
+    bool contains(const Ipv4Address &addr) const {
+        return (addr.bytes[0] & mask.bytes[0]) == network.bytes[0] &&
+               (addr.bytes[1] & mask.bytes[1]) == network.bytes[1] &&
+               (addr.bytes[2] & mask.bytes[2]) == network.bytes[2] &&
+               (addr.bytes[3] & mask.bytes[3]) == network.bytes[3];
+    }
+} __attribute__((packed));
 
 #endif //DNET_LAYERS_DEFS_H

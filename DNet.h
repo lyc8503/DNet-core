@@ -20,9 +20,13 @@ public:
     driver *dri;
     L2 *ethernet_layer;
 
+    const MacAddress& mac();
+    const Ipv4Subnet& subnet();
+
 private:
-    Ipv4Address dest_ip;
-    Ipv4Address gen_mask;
+    Ipv4Subnet ipv4_subnet;
+
+    MacAddress mac_address;
 };
 
 

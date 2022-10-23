@@ -8,6 +8,9 @@
 
 #include <cstdio>
 #include "../../defs.h"
+#include "../../../DNet.h"
+
+class DNet;
 
 
 // RARP is not included
@@ -23,10 +26,10 @@ struct ArpPayload {
     uint8_t plen;       // Must be 4 here (ipv4)
     uint16_be opcode;
 
-    MacAddress src_mac;
-    Ipv4Address src_ip;
-    MacAddress dest_mac;
-    Ipv4Address dest_ip;
+    MacAddress sender_mac;
+    Ipv4Address sender_ip;
+    MacAddress target_mac;
+    Ipv4Address target_ip;
 
     std::string to_string() {
         std::stringstream ss;
@@ -44,19 +47,24 @@ struct ArpPayload {
                 break;
         }
 
-        ss << ", src_mac=" << src_mac.to_string() << ", src_ip=" << src_ip.to_string();
-        ss << ", dest_mac=" << dest_mac.to_string() << ", dest_ip=" << dest_ip.to_string() << "]";
+        ss << ", sender_mac=" << sender_mac.to_string() << ", sender_ip=" << sender_ip.to_string();
+        ss << ", target_mac=" << target_mac.to_string() << ", target_ip=" << target_ip.to_string() << "]";
         return ss.str();
     }
 } __attribute__((packed));
 
 
-
 class ARP {
 public:
 
-    ssize_t send(void* buf, size_t size);
-    void on_recv(void* buf, size_t size);
+    explicit ARP(DNet *context);
+
+    ssize_t send_response(MacAddress sender_mac, Ipv4Address sender_ip, MacAddress target_mac, Ipv4Address target_ip);
+
+    void on_recv(void *buf, size_t size);
+
+private:
+    DNet *context;
 
 };
 
