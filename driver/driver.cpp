@@ -165,7 +165,7 @@ error:
 // add a route to the TAP dev
 bool driver::add_route(const std::string& dest, const std::string& gen_mask) {
 
-    int fd_ = socket( PF_INET, SOCK_DGRAM,  IPPROTO_IP);
+    int fd_ = socket(PF_INET, SOCK_DGRAM,  IPPROTO_IP);
 
     if (fd_ < 0) {
         DNET_ERROR("Add route socket open failed.");

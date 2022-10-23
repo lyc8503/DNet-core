@@ -8,7 +8,7 @@
 #include "../../../defs.h"
 
 ssize_t ARP::send(void *buf, size_t size) {
-
+    return 0;
 }
 
 void ARP::on_recv(void *buf, size_t size) {

@@ -16,9 +16,7 @@ ssize_t L2::send(void *buf, size_t size) {
 }
 
 void L2::on_recv(void *buf, size_t size) {
-
 //    assert(size >= 64 && size <= 1518);
-
 
     auto* frame = (EthernetFrame*) buf;
     std::cout << "dst: " << frame->dest_mac.to_string() << " src: " << frame->src_mac.to_string() << std::endl;
@@ -40,4 +38,7 @@ void L2::on_recv(void *buf, size_t size) {
 
 }
 
-L2::L2() = default;
+L2::L2(DNet *context) {
+    this->context = context;
+}
+

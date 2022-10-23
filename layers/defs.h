@@ -58,6 +58,22 @@ union Ipv4Address {
         ss << (int) bytes[0] << "." << (int) bytes[1] << "."<< (int) bytes[2] << "."<< (int) bytes[3];
         return ss.str();
     }
+
+    void parse_string(const std::string& ip_str) {
+        int x1, x2, x3, x4;
+        if (sscanf(ip_str.c_str(), "%d.%d.%d.%d", &x1, &x2, &x3, &x4) != 4) {
+            throw std::invalid_argument("Invalid ipv4 address: " + ip_str);
+        }
+
+        if (x1 >= 0 && x2 >= 0 && x3 >= 0 && x4 >=0 && x1 <= 255 && x2 <= 255 && x3 <= 255 && x4 <= 255) {
+            this->bytes[0] = x1;
+            this->bytes[1] = x2;
+            this->bytes[2] = x3;
+            this->bytes[3] = x4;
+        } else {
+            throw std::invalid_argument("Invalid ipv4 address: " + ip_str);
+        }
+    }
 } __attribute__((packed));
 
 
