@@ -10,7 +10,8 @@
 
 class Layer {
 public:
-    virtual ssize_t send(void* buf, size_t size) = 0;
+    // TODO: abstract
+//    virtual ssize_t send(void* buf, size_t size) = 0;
     virtual void on_recv(void* buf, size_t size) = 0;
 };
 

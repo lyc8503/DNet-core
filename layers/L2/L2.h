@@ -32,12 +32,13 @@ class L2 : Layer {
 public:
     explicit L2(DNet *context);
 
-    ssize_t send(void *buf, size_t size) override;
+    ssize_t send(void *buf, size_t size, MacAddress dest);
 
     void on_recv(void *buf, size_t size) override;
 
 private:
     DNet *context;
+    class ARP *arp;
 };
 
 

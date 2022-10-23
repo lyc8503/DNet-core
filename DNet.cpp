@@ -9,9 +9,8 @@ DNet::DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const
     /**
      * initialize args
      */
-    this->dest_ip.parse_string(dest_ip);
-    this->gen_mask.parse_string(gen_mask);
-
+    this->ipv4_subnet.network.parse_string(dest_ip);
+    this->ipv4_subnet.mask.parse_string(gen_mask);
 
     /**
      * initialize driver
@@ -23,7 +22,7 @@ DNet::DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const
 
 //  We will manage ip by ourselves
 //  assert(driver.add_ip("10.0.0.1", "255.255.255.0"));
-    if (!dri->add_route(this->dest_ip.to_string(), this->gen_mask.to_string())) {
+    if (!dri->add_route(this->ipv4_subnet.network.to_string(), this->ipv4_subnet.mask.to_string())) {
         throw std::runtime_error("Driver add route failed.");
     }
 
@@ -40,10 +39,17 @@ DNet::DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const
 
 
 
-
-
     /**
      * all layers are initialized, start!
      */
     dri->start_listen();
+}
+
+const MacAddress &DNet::mac() {
+    memcpy(this->mac_address.bytes, this->dri->get_mac(), IFHWADDRLEN);
+    return this->mac_address;
+}
+
+const Ipv4Subnet &DNet::subnet() {
+    return this->ipv4_subnet;
 }
