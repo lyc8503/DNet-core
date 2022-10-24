@@ -3,7 +3,6 @@
 //
 
 #include <iostream>
-#include <cassert>
 #include "ARP.h"
 #include "../../../defs.h"
 
@@ -29,13 +28,13 @@ ssize_t ARP::send_response(MacAddress sender_mac, Ipv4Address sender_ip, MacAddr
 
 void ARP::on_recv(void *buf, size_t size) {
     // Some implementations will fill zeros after the payload, so the size is bigger than ArpPayload(28).
-    assert(size >= sizeof(ArpPayload));
+    DNET_ASSERT(size >= sizeof(ArpPayload));
 
     auto* payload = (ArpPayload*) buf;
-    assert(payload->htype == 0x0001);  // Hardcoded, ethernet
-    assert(payload->ptype == 0x0800);  // Hardcoded, ipv4
-    assert(payload->hlen == 6);  // Hardware address length (mac)
-    assert(payload->plen == 4);  // Protocol address length (ipv4)
+    DNET_ASSERT(payload->htype == 0x0001);  // Hardcoded, ethernet
+    DNET_ASSERT(payload->ptype == 0x0800);  // Hardcoded, ipv4
+    DNET_ASSERT(payload->hlen == 6);  // Hardware address length (mac)
+    DNET_ASSERT(payload->plen == 4);  // Protocol address length (ipv4)
 
     DNET_DEBUG("Received ARP: %s", payload->to_string().c_str());
 

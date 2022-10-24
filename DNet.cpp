@@ -20,8 +20,8 @@ DNet::DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const
         throw std::runtime_error("Driver init failed.");
     }
 
-//  We will manage ip by ourselves
-//  assert(driver.add_ip("10.0.0.1", "255.255.255.0"));
+//    We will manage ip by ourselves
+//    driver.add_ip("10.0.0.1", "255.255.255.0");
     if (!dri->add_route(this->ipv4_subnet.network.to_string(), this->ipv4_subnet.mask.to_string())) {
         throw std::runtime_error("Driver add route failed.");
     }

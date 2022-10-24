@@ -2,7 +2,6 @@
 // Created by lyc8503 on 2022/10/20.
 //
 
-#include <cassert>
 #include <iostream>
 #include "L2.h"
 #include "../../defs.h"
@@ -25,13 +24,13 @@ ssize_t L2::send(void *buf, size_t size, MacAddress dest) {
 }
 
 void L2::on_recv(void *buf, size_t size) {
-//    assert(size >= 64 && size <= 1518);
+//    DNET_ASSERT(size >= 64 && size <= 1518);
 
     auto* frame = (EthernetFrame*) buf;
 
     switch (frame->ether_type.val()) {
         case EtherType::ARP:
-            assert(frame->dest_mac.is_broadcast());
+            DNET_ASSERT(frame->dest_mac.is_broadcast());
             arp->on_recv(frame->payload, size - ETHERNET_FRAME_HEADER_LEN);
             break;
         case EtherType::IP:
