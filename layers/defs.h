@@ -25,6 +25,11 @@ union uint16_be {
 
         return *this;
     }
+
+    bool operator==(const uint16_t &val) {
+        return bytes[1] == (val & 0xff) &&
+               bytes[0] == (val & 0xff00) >> 8;
+    }
 } __attribute__((packed));
 
 union uint32_be {
@@ -41,6 +46,13 @@ union uint32_be {
         bytes[0] = (val & 0xff000000) >> 24;
 
         return *this;
+    }
+
+    bool operator==(const uint32_t &val) {
+        return bytes[3] == (val & 0xff) &&
+               bytes[2] == (val & 0xff00) >> 8 &&
+               bytes[1] == (val & 0xff0000) >> 16 &&
+               bytes[0] == (val & 0xff000000) >> 24;
     }
 } __attribute__((packed));
 
