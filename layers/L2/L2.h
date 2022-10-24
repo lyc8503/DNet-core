@@ -19,7 +19,7 @@ struct EthernetFrame {
     MacAddress dest_mac;
     MacAddress src_mac;
     uint16_be ether_type;
-    uint8_t payload_and_checksum[0];
+    uint8_t payload[0];
 } __attribute__((packed));
 
 enum EtherType {

@@ -21,22 +21,28 @@ ssize_t ARP::send_response(MacAddress sender_mac, Ipv4Address sender_ip, MacAddr
     payload.target_mac = target_mac;
     payload.target_ip = target_ip;
 
+    DNET_DEBUG("Send ARP response: %s", payload.to_string().c_str());
+
     // TODO: actual size of data sent
     return this->context->ethernet_layer->send(&payload, sizeof(payload), target_mac);
 }
 
 void ARP::on_recv(void *buf, size_t size) {
-//    assert(size == 28);
+    // Some implementations will fill zeros after the payload, so the size is bigger than ArpPayload(28).
+    assert(size >= sizeof(ArpPayload));
 
     auto* payload = (ArpPayload*) buf;
+    assert(payload->htype == 0x0001);  // Hardcoded, ethernet
+    assert(payload->ptype == 0x0800);  // Hardcoded, ipv4
     assert(payload->hlen == 6);  // Hardware address length (mac)
     assert(payload->plen == 4);  // Protocol address length (ipv4)
 
-    std::cout << payload->to_string() << std::endl;
+    DNET_DEBUG("Received ARP: %s", payload->to_string().c_str());
 
     switch (payload->opcode.val()) {
         case ARP_REQUEST:
             if (context->subnet().contains(payload->target_ip)) {
+                // The sender is now the target
                 send_response(context->mac(), payload->target_ip, payload->sender_mac, payload->sender_ip);
             }
             break;
