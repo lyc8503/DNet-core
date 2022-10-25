@@ -37,6 +37,12 @@ DNet::DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const
 
     dri->set_callback(L2_on_recv);
 
+    /**
+     * initialize IP layer
+     */
+
+    ip_layer = new class L3(this);
+
 
 
     /**
@@ -53,3 +59,17 @@ const MacAddress &DNet::mac() {
 const Ipv4Subnet &DNet::subnet() {
     return this->ipv4_subnet;
 }
+
+ssize_t DNet::driver_send(void* buf, size_t size) {
+    return dri->write(buf, size);
+}
+
+ssize_t DNet::L2_send(void *buf, size_t size, MacAddress dest) {
+    return this->ethernet_layer->send(buf, size, dest);
+}
+
+void DNet::L3_on_recv(void *buf, size_t size) {
+    ip_layer->on_recv(buf, size);
+}
+
+

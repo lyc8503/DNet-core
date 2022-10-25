@@ -18,6 +18,9 @@ enum ARP_OPCODE {
     ARP_REQUEST = 1, ARP_RESPONSE = 2
 };
 
+std::ostream &operator<<(std::ostream &os, ARP_OPCODE op);
+
+
 // https://zh.wikipedia.org/zh-sg/%E5%9C%B0%E5%9D%80%E8%A7%A3%E6%9E%90%E5%8D%8F%E8%AE%AE
 struct ArpPayload {
     uint16_be htype;
@@ -31,22 +34,10 @@ struct ArpPayload {
     MacAddress target_mac;
     Ipv4Address target_ip;
 
-    std::string to_string() {
+    [[nodiscard]] std::string to_string() const {
         std::stringstream ss;
 
-        ss << "ARP Payload [op=";
-
-        switch (opcode.val()) {
-            case ARP_REQUEST:
-                ss << "ARP_REQUEST";
-                break;
-            case ARP_RESPONSE:
-                ss << "ARP_RESPONSE";
-                break;
-            default:
-                break;
-        }
-
+        ss << "ARP Payload [op=" << (ARP_OPCODE) opcode.val();
         ss << ", sender_mac=" << sender_mac.to_string() << ", sender_ip=" << sender_ip.to_string();
         ss << ", target_mac=" << target_mac.to_string() << ", target_ip=" << target_ip.to_string() << "]";
         return ss.str();

@@ -27,8 +27,8 @@ public:
     char dev[IFNAMSIZ]{};
     size_t mtu;
 
-    ssize_t read(uint8_t* buf, size_t size);
-    ssize_t write(uint8_t* buf, size_t size);
+    ssize_t read(void* buf, size_t size);
+    ssize_t write(void* buf, size_t size);
 
     void set_callback(std::function<void(void*, size_t)> callback);
     void start_listen();

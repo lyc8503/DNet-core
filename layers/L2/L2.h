@@ -12,7 +12,13 @@
 
 class DNet;
 
-#define ETHERNET_FRAME_HEADER_LEN 14
+enum EtherType {
+    ARP = 0x0806,
+    IP = 0x0800
+};
+
+std::ostream &operator<<(std::ostream &os, EtherType t);
+
 
 // https://en.wikipedia.org/wiki/Ethernet_frame
 struct EthernetFrame {
@@ -20,12 +26,15 @@ struct EthernetFrame {
     MacAddress src_mac;
     uint16_be ether_type;
     uint8_t payload[0];
+
+    std::string to_string() const {
+        std::stringstream ss;
+        ss << "EthernetFrame [dest_mac=" << dest_mac.to_string() << ", src_mac=" << src_mac.to_string() << ", ether_type=" << (EtherType) ether_type.val() << "]";
+        return ss.str();
+    }
 } __attribute__((packed));
 
-enum EtherType {
-    ARP = 0x0806,
-    IP = 0x0800
-};
+static_assert(sizeof(EthernetFrame) == 14);
 
 class L2 : Layer {
 

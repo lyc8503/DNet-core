@@ -10,8 +10,6 @@
 #include <stdexcept>
 #include <arpa/inet.h>
 #include <net/route.h>
-#include <sstream>
-#include <iomanip>
 #include "../defs.h"
 
 
@@ -77,7 +75,7 @@ bool driver::init_dev() {
 }
 
 
-ssize_t driver::read(uint8_t *buf, size_t size) {
+ssize_t driver::read(void *buf, size_t size) {
     ssize_t ret = ::read(this->fd, buf, size);
     if (ret < 0) {
         DNET_ERROR("Device read error: %s", strerror(errno));
@@ -85,7 +83,7 @@ ssize_t driver::read(uint8_t *buf, size_t size) {
     return ret;
 }
 
-ssize_t driver::write(uint8_t *buf, size_t size) {
+ssize_t driver::write(void *buf, size_t size) {
     ssize_t ret = ::write(this->fd, buf, size);
     if (ret < 0) {
         DNET_ERROR("Device write error: %s", strerror(errno));
