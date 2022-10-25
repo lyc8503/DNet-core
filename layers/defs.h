@@ -15,7 +15,7 @@
 union uint16_be {
     uint8_t bytes[2];
 
-    uint16_t val() {
+    uint16_t val() const {
         return ((uint16_t) bytes[0] << 8) + bytes[1];
     }
 
@@ -26,16 +26,15 @@ union uint16_be {
         return *this;
     }
 
-    bool operator==(const uint16_t &val) {
-        return bytes[1] == (val & 0xff) &&
-               bytes[0] == (val & 0xff00) >> 8;
+    bool operator==(const uint16_t &val) const {
+        return this->val() == val;
     }
 } __attribute__((packed));
 
 union uint32_be {
     uint8_t bytes[4];
 
-    uint32_t val() {
+    uint32_t val() const {
         return ((uint32_t) bytes[0] << 24) + ((uint32_t) bytes[1] << 16) + ((uint32_t) bytes[2] << 8) + bytes[3];
     }
 
@@ -48,18 +47,15 @@ union uint32_be {
         return *this;
     }
 
-    bool operator==(const uint32_t &val) {
-        return bytes[3] == (val & 0xff) &&
-               bytes[2] == (val & 0xff00) >> 8 &&
-               bytes[1] == (val & 0xff0000) >> 16 &&
-               bytes[0] == (val & 0xff000000) >> 24;
+    bool operator==(const uint32_t &val) const {
+        return this->val() == val;
     }
 } __attribute__((packed));
 
 union MacAddress {
     uint8_t bytes[6];
 
-    std::string to_string() {
+    std::string to_string() const {
         std::stringstream ss;
 
         for (int i = 0; i < 6; i++) {
@@ -69,7 +65,7 @@ union MacAddress {
         return ss.str();
     }
 
-    bool is_broadcast() {
+    bool is_broadcast() const {
         return bytes[0] == 0xff &&
                bytes[1] == 0xff &&
                bytes[2] == 0xff &&
@@ -90,7 +86,7 @@ union Ipv4Address {
     uint32_be data;
     uint8_t bytes[4];
 
-    std::string to_string() {
+    std::string to_string() const {
         std::stringstream ss;
         ss << (int) bytes[0] << "." << (int) bytes[1] << "." << (int) bytes[2] << "." << (int) bytes[3];
         return ss.str();

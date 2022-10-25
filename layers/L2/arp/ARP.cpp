@@ -6,6 +6,18 @@
 #include "ARP.h"
 #include "../../../defs.h"
 
+
+std::ostream &operator<<(std::ostream &os, ARP_OPCODE op) {
+    switch (op) {
+        case ARP_OPCODE::ARP_REQUEST :
+            return os << "ARP_REQUEST";
+        case ARP_OPCODE::ARP_RESPONSE:
+            return os << "ARP_RESPONSE";
+        default:
+            return os << "Unknown(" << (uint32_t) op << ")";
+    }
+}
+
 ssize_t ARP::send_response(MacAddress sender_mac, Ipv4Address sender_ip, MacAddress target_mac, Ipv4Address target_ip) {
 
     ArpPayload payload{};
@@ -23,18 +35,18 @@ ssize_t ARP::send_response(MacAddress sender_mac, Ipv4Address sender_ip, MacAddr
     DNET_DEBUG("Send ARP response: %s", payload.to_string().c_str());
 
     // TODO: actual size of data sent
-    return this->context->ethernet_layer->send(&payload, sizeof(payload), target_mac);
+    return this->context->L2_send(&payload, sizeof(payload), target_mac);
 }
 
 void ARP::on_recv(void *buf, size_t size) {
     // Some implementations will fill zeros after the payload, so the size is bigger than ArpPayload(28).
-    DNET_ASSERT(size >= sizeof(ArpPayload));
+            DNET_ASSERT(size >= sizeof(ArpPayload));
 
-    auto* payload = (ArpPayload*) buf;
-    DNET_ASSERT(payload->htype == 0x0001);  // Hardcoded, ethernet
-    DNET_ASSERT(payload->ptype == 0x0800);  // Hardcoded, ipv4
-    DNET_ASSERT(payload->hlen == 6);  // Hardware address length (mac)
-    DNET_ASSERT(payload->plen == 4);  // Protocol address length (ipv4)
+    auto *payload = (ArpPayload *) buf;
+            DNET_ASSERT(payload->htype == 0x0001);  // Hardcoded, ethernet
+            DNET_ASSERT(payload->ptype == 0x0800);  // Hardcoded, ipv4
+            DNET_ASSERT(payload->hlen == 6);  // Hardware address length (mac)
+            DNET_ASSERT(payload->plen == 4);  // Protocol address length (ipv4)
 
     DNET_DEBUG("Received ARP: %s", payload->to_string().c_str());
 

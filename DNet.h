@@ -8,24 +8,32 @@
 #include "driver/driver.h"
 #include "layers/defs.h"
 #include "layers/L2/L2.h"
+#include "layers/L3/L3.h"
 
 class L2;
-
+class L3;
 
 class DNet {
 
 public:
     DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const std::string &gen_mask);
 
-    driver *dri;
-    L2 *ethernet_layer;
+    ssize_t driver_send(void *buf, size_t size);
 
-    const MacAddress& mac();
-    const Ipv4Subnet& subnet();
+    ssize_t L2_send(void *buf, size_t size, MacAddress dest);
+
+    void L3_on_recv(void* buf, size_t size);
+
+    const MacAddress &mac();
+
+    const Ipv4Subnet &subnet();
 
 private:
-    Ipv4Subnet ipv4_subnet;
+    driver *dri;
+    L2 *ethernet_layer;
+    L3 *ip_layer;
 
+    Ipv4Subnet ipv4_subnet;
     MacAddress mac_address;
 };
 

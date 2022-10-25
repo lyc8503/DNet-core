@@ -7,6 +7,20 @@
 #include "../../defs.h"
 #include "arp/ARP.h"
 
+std::ostream &operator<<(std::ostream &os, EtherType t) {
+    switch (t) {
+        case EtherType::ARP :
+            return os << "ARP";
+        case EtherType::IP:
+            return os << "IP";
+        default:
+            std::ios_base::fmtflags f(std::cout.flags());  // save flags
+            std::ostream& ret = os << std::hex << "Unknown(" << (uint32_t) t << ")";
+            std::cout.flags(f);  // restore flags
+            return ret;
+    }
+}
+
 
 ssize_t L2::send(void *buf, size_t size, MacAddress dest) {
 
@@ -20,7 +34,7 @@ ssize_t L2::send(void *buf, size_t size, MacAddress dest) {
     frame->ether_type = EtherType::ARP;
     memcpy(frame->payload, buf, size);
 
-    return this->context->dri->write(tmp, sizeof(EthernetFrame) + size);
+    return this->context->driver_send(tmp, sizeof(EthernetFrame) + size);
 }
 
 void L2::on_recv(void *buf, size_t size) {
@@ -28,13 +42,15 @@ void L2::on_recv(void *buf, size_t size) {
 
     auto* frame = (EthernetFrame*) buf;
 
+    DNET_DEBUG("%s", frame->to_string().c_str());
+
     switch (frame->ether_type.val()) {
         case EtherType::ARP:
-            DNET_ASSERT(frame->dest_mac.is_broadcast());
-            arp->on_recv(frame->payload, size - ETHERNET_FRAME_HEADER_LEN);
+//            DNET_ASSERT(frame->dest_mac.is_broadcast());
+            arp->on_recv(frame->payload, size - sizeof(EthernetFrame));
             break;
         case EtherType::IP:
-            DNET_DEBUG("IP!");
+            context->L3_on_recv(frame->payload, size - sizeof(EthernetFrame));
             break;
         default:
             DNET_DEBUG("Unsupported EtherType for L2: %04x, packet dropped.", frame->ether_type.val());
