@@ -20,11 +20,14 @@ std::ostream &operator<<(std::ostream &os, IPV4_PROTOCOL t);
 
 // https://zh.wikipedia.org/wiki/IPv4
 struct Ipv4Packet {
-    uint8_t version_and_ihl;
-    uint8_t ds_and_ecn;
+    uint8_t ihl: 4;
+    uint8_t version: 4;
+    uint8_t ecn: 2;
+    uint8_t ds: 6;
     uint16_be total_len;
     uint16_be identification;
-    uint16_be flags_and_fragment_offset;
+    uint16_t fragment_offset: 13;
+    uint8_t flags: 3;
     uint8_t ttl;
     uint8_t protocol;
     uint16_be header_checksum;
@@ -32,20 +35,12 @@ struct Ipv4Packet {
     Ipv4Address dest_ip;
     uint8_t data[0];
 
-    uint8_t version() {
-        return ((version_and_ihl & 0b1111'0000) >> 4);
-    }
-
-    uint8_t ihl() {
-        return (version_and_ihl & 0b0000'1111);
-    }
-
     std::string to_string() {
         std::stringstream ss;
 
-        ss << "Ipv4Packet [version=" << (uint32_t) version() << ", ihl=" << (uint32_t) ihl();
-        ss << ", ds_and_ecn=" << std::hex << (uint32_t) ds_and_ecn << std::dec << ", total_len=" << total_len.val();
-        ss << ", identification=" << identification.val() << ", flags_and_fragment_offset=" << std::hex << flags_and_fragment_offset.val() << std::dec;
+        ss << "Ipv4Packet [version=" << (uint32_t) version << ", ihl=" << (uint32_t) ihl;
+        ss << ", ds_and_ecn=" << std::hex << (uint32_t) ds << ", " << (uint32_t) ecn << std::dec << ", total_len=" << total_len.val();
+        ss << ", identification=" << identification.val() << ", flags_and_fragment_offset=" << std::hex << (uint32_t) flags << ", " << fragment_offset << std::dec;
         ss << ", ttl=" << (uint32_t) ttl << ", protocol=" << (IPV4_PROTOCOL) protocol << ", header_checksum=" << std::hex << header_checksum.val() << std::dec;
         ss << ", src_ip=" << src_ip.to_string() << ", dest_ip=" << dest_ip.to_string();
         ss << "]";

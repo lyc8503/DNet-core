@@ -15,7 +15,7 @@
 union uint16_be {
     uint8_t bytes[2];
 
-    uint16_t val() const {
+    [[nodiscard]] uint16_t val() const {
         return ((uint16_t) bytes[0] << 8) + bytes[1];
     }
 
