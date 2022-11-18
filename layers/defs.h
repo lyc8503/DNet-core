@@ -55,6 +55,10 @@ union uint32_be {
 union MacAddress {
     uint8_t bytes[6];
 
+    static MacAddress get_broadcast_address(){
+        return MacAddress({{0xff, 0xff, 0xff, 0xff, 0xff, 0xff}});
+    }
+
     std::string to_string() const {
         std::stringstream ss;
 
@@ -81,6 +85,7 @@ union MacAddress {
         return *this;
     }
 } __attribute__((packed));
+
 
 union Ipv4Address {
     uint32_be data;
@@ -114,7 +119,20 @@ union Ipv4Address {
         }
         return *this;
     }
+
+    bool operator==(const Ipv4Address &val) const {
+        return data == val.data.val();
+    }
+
 } __attribute__((packed));
+
+struct Ipv4AddressHasher
+{
+    std::size_t operator()(Ipv4Address const& s) const
+    {
+        return s.data.val();
+    }
+};
 
 struct Ipv4Subnet {
 
