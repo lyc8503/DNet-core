@@ -7,10 +7,15 @@
 
 
 #include <cstdio>
+#include <ctime>
+#include <unordered_map>
+#include <optional>
 #include "../../defs.h"
 #include "../../../DNet.h"
 
 class DNet;
+
+const time_t ARP_CACHE_TTL=120;//in seconds
 
 
 // RARP is not included
@@ -44,6 +49,12 @@ struct ArpPayload {
     }
 } __attribute__((packed));
 
+struct ArpCacheEntry{
+    MacAddress address;
+    time_t last_update;
+    ArpCacheEntry(){}
+    explicit ArpCacheEntry(MacAddress _address, time_t _last_update):address(_address), last_update(_last_update){}
+};
 
 class ARP {
 public:
@@ -52,10 +63,16 @@ public:
 
     ssize_t send_response(MacAddress sender_mac, Ipv4Address sender_ip, MacAddress target_mac, Ipv4Address target_ip);
 
+    ssize_t send_request(MacAddress sender_mac, Ipv4Address sender_ip, MacAddress target_mac, Ipv4Address target_ip);
+
     void on_recv(void *buf, size_t size);
+
+    std::optional<MacAddress> lookup(Ipv4Address);
 
 private:
     DNet *context;
+
+    std::unordered_map<Ipv4Address, ArpCacheEntry, Ipv4AddressHasher> cache;
 
 };
 
