@@ -50,6 +50,4 @@ void L3::on_recv(void *buf, size_t size) {
     packet->header_checksum = 0x0000;
     DNET_ASSERT(checksum == checksum_16bit((uint16_be*) buf, sizeof(Ipv4Packet) / 2));
 
-
-
 }
