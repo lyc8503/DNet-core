@@ -61,13 +61,13 @@ ssize_t ARP::send_request(MacAddress sender_mac, Ipv4Address sender_ip, MacAddre
 
 void ARP::on_recv(void *buf, size_t size) {
     // Some implementations will fill zeros after the payload, so the size is bigger than ArpPayload(28).
-            DNET_ASSERT(size >= sizeof(ArpPayload));
+    DNET_ASSERT(size >= sizeof(ArpPayload));
 
     auto *payload = (ArpPayload *) buf;
-            DNET_ASSERT(payload->htype == 0x0001);  // Hardcoded, ethernet
-            DNET_ASSERT(payload->ptype == 0x0800);  // Hardcoded, ipv4
-            DNET_ASSERT(payload->hlen == 6);  // Hardware address length (mac)
-            DNET_ASSERT(payload->plen == 4);  // Protocol address length (ipv4)
+    DNET_ASSERT(payload->htype == 0x0001);  // Hardcoded, ethernet
+    DNET_ASSERT(payload->ptype == 0x0800);  // Hardcoded, ipv4
+    DNET_ASSERT(payload->hlen == 6);  // Hardware address length (mac)
+    DNET_ASSERT(payload->plen == 4);  // Protocol address length (ipv4)
 
     DNET_DEBUG("Received ARP: %s", payload->to_string().c_str());
 
@@ -80,8 +80,9 @@ void ARP::on_recv(void *buf, size_t size) {
             break;
         case ARP_RESPONSE:
             //Put it into cache
-            cache[payload->sender_ip] = ArpCacheEntry(payload->sender_mac,time(nullptr));
-            DNET_DEBUG("cache[%s] is now: %s", payload->sender_ip.to_string().c_str(), cache[payload->sender_ip].address.to_string().c_str());
+            cache[payload->sender_ip] = ArpCacheEntry(payload->sender_mac, time(nullptr));
+            DNET_DEBUG("cache[%s] is now: %s", payload->sender_ip.to_string().c_str(),
+                       cache[payload->sender_ip].address.to_string().c_str());
             break;
         default:
             DNET_ERROR("Unknown ARP opcode: %d", payload->opcode.val());
@@ -90,10 +91,10 @@ void ARP::on_recv(void *buf, size_t size) {
 
 }
 
-std::optional<MacAddress> ARP::lookup(Ipv4Address address){
+std::optional<MacAddress> ARP::lookup(Ipv4Address address) {
     DNET_DEBUG("ARP lookup invoked: %s", address.to_string().c_str());
     auto entry = cache.find(address);
-    if(entry==cache.end() || entry->second.last_update + ARP_CACHE_TTL < time(nullptr)) {
+    if (entry == cache.end() || entry->second.last_update + ARP_CACHE_TTL < time(nullptr)) {
         //not in cache or has expired
         DNET_DEBUG("ARP cache missed. Sending request");
         send_request(context->mac(), context->subnet().network, MacAddress::get_broadcast_address(), address);
