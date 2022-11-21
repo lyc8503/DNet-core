@@ -22,17 +22,19 @@ std::ostream &operator<<(std::ostream &os, EtherType t) {
 }
 
 
-ssize_t L2::send(void *buf, size_t size, MacAddress dest) {
+ssize_t L2::send(void *buf, size_t size, MacAddress dest, EtherType type) {
 
-    // TODO: refactor
+    // TODO: optimize memory copy
 
     uint8_t tmp[sizeof(EthernetFrame) + size];
 
     auto* frame = (EthernetFrame*) tmp;
     frame->dest_mac = dest;
     frame->src_mac = this->context.mac();
-    frame->ether_type = EtherType::ARP;
+    frame->ether_type = type;
     memcpy(frame->payload, buf, size);
+
+    DNET_DEBUG("L2 send: %s", frame->to_string().c_str());
 
     return this->context.driver_send(tmp, sizeof(EthernetFrame) + size);
 }
@@ -42,7 +44,7 @@ void L2::on_recv(void *buf, size_t size) {
 
     auto* frame = (EthernetFrame*) buf;
 
-    DNET_DEBUG("%s", frame->to_string().c_str());
+    DNET_DEBUG("L2 recv: %s", frame->to_string().c_str());
 
     switch (frame->ether_type.val()) {
         case EtherType::ARP:

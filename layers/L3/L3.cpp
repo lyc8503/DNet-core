@@ -87,8 +87,10 @@ ssize_t L3::send(Ipv4Address target, void* buf, size_t size) {
 //    DNET_ASSERT(addr.has_value(), "Arp cache missing.");
 
     if (addr.has_value()) {
-        context.L2_send(tmp, sizeof(Ipv4Packet) + size, addr.value());
+        context.L2_send(tmp, sizeof(Ipv4Packet) + size, addr.value(), EtherType::IP);
     }
+
+    return 0;  // TODO
 }
 
 
