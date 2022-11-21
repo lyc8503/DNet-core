@@ -55,7 +55,7 @@ void L3::on_recv(void *buf, size_t size) {
 
     switch (packet->protocol) {
         case ICMP:
-
+            icmp->on_recv(packet->data, size - packet->ihl * 4);
             break;
         default:
             DNET_ASSERT(false, "Unknown Ipv4 Protocol: " + std::to_string(packet->protocol));

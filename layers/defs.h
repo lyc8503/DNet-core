@@ -13,7 +13,7 @@
 
 
 union uint16_be {
-    uint8_t bytes[2];
+    uint8_t bytes[2]{};
 
     [[nodiscard]] uint16_t val() const {
         return ((uint16_t) bytes[0] << 8) + bytes[1];
@@ -29,12 +29,21 @@ union uint16_be {
     bool operator==(const uint16_t &val) const {
         return this->val() == val;
     }
+
+    uint16_be() {
+        *this = 0;
+    }
+
+    explicit uint16_be(uint16_t i) {
+        *this = i;
+    }
 } __attribute__((packed));
 
-union uint32_be {
-    uint8_t bytes[4];
 
-    uint32_t val() const {
+union uint32_be {
+    uint8_t bytes[4]{};
+
+    [[nodiscard]] uint32_t val() const {
         return ((uint32_t) bytes[0] << 24) + ((uint32_t) bytes[1] << 16) + ((uint32_t) bytes[2] << 8) + bytes[3];
     }
 
@@ -50,7 +59,16 @@ union uint32_be {
     bool operator==(const uint32_t &val) const {
         return this->val() == val;
     }
+
+    uint32_be() {
+        *this = 0;
+    }
+
+    explicit uint32_be(uint32_t i) {
+        *this = i;
+    }
 } __attribute__((packed));
+
 
 union MacAddress {
     uint8_t bytes[6];
@@ -88,7 +106,7 @@ union MacAddress {
 
 
 union Ipv4Address {
-    uint32_be data;
+    uint32_be data{};
     uint8_t bytes[4];
 
     std::string to_string() const {
@@ -123,7 +141,6 @@ union Ipv4Address {
     bool operator==(const Ipv4Address &val) const {
         return data == val.data.val();
     }
-
 } __attribute__((packed));
 
 struct Ipv4AddressHasher
