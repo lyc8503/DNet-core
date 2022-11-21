@@ -62,3 +62,17 @@ void L3::on_recv(void *buf, size_t size) {
     }
 
 }
+
+ssize_t L3::send(void* buf, size_t size) {
+    char tmp[sizeof(Ipv4Packet) + size];
+    auto* packet = (Ipv4Packet*) tmp;
+    
+    // Set packet headers
+    packet->version = 4;
+    packet->ihl = sizeof(Ipv4Packet) / 4;
+    
+    // TODO: more args
+    
+}
+
+
