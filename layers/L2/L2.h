@@ -45,9 +45,10 @@ public:
 
     void on_recv(void *buf, size_t size) override;
 
+    class ARP *arp;
+
 private:
     DNet& context;
-    class ARP *arp;
 };
 
 

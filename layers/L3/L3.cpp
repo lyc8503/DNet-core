@@ -2,6 +2,7 @@
 // Created by lyc8503 on 2022/10/24.
 //
 
+#include <optional>
 #include "L3.h"
 #include "../../defs.h"
 #include "../../util/util.h"
@@ -38,7 +39,7 @@ void L3::on_recv(void *buf, size_t size) {
 
     auto* packet = (Ipv4Packet*) buf;
 
-    DNET_DEBUG("%s", packet->to_string().c_str());
+    DNET_DEBUG("L3 recv: %s", packet->to_string().c_str());
 
     // Verify version
     DNET_ASSERT(packet->version == 4, "Ipv4 Packet version mismatch.");
@@ -63,16 +64,31 @@ void L3::on_recv(void *buf, size_t size) {
 
 }
 
-ssize_t L3::send(void* buf, size_t size) {
+ssize_t L3::send(Ipv4Address target, void* buf, size_t size) {
     char tmp[sizeof(Ipv4Packet) + size];
     auto* packet = (Ipv4Packet*) tmp;
     
     // Set packet headers
     packet->version = 4;
     packet->ihl = sizeof(Ipv4Packet) / 4;
-    
+    packet->protocol = ICMP;
+    packet->header_checksum = checksum_16bit((uint16_be*) packet, sizeof(Ipv4Packet) / 2);
+    packet->src_ip.parse_string("10.0.0.1");  // TODO
+    packet->dest_ip = target;
+    packet->total_len = sizeof(Ipv4Packet) + size;
+
     // TODO: more args
-    
+    memcpy(packet->data, buf, size);
+
+    DNET_DEBUG("L3 send: %s", packet->to_string().c_str());
+
+    std::optional<MacAddress> addr = context.arp_lookup(target);
+
+//    DNET_ASSERT(addr.has_value(), "Arp cache missing.");
+
+    if (addr.has_value()) {
+        context.L2_send(tmp, sizeof(Ipv4Packet) + size, addr.value());
+    }
 }
 
 
