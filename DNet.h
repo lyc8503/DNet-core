@@ -10,6 +10,7 @@
 #include "layers/defs.h"
 #include "layers/L2/L2.h"
 #include "layers/L3/L3.h"
+#include <optional>
 
 class L2;
 class L3;
@@ -23,7 +24,11 @@ public:
 
     ssize_t L2_send(void *buf, size_t size, MacAddress dest);
 
+    ssize_t L3_send(Ipv4Address target, void* buf, size_t size);
+
     void L3_on_recv(void* buf, size_t size);
+
+    std::optional<MacAddress> arp_lookup(Ipv4Address address);
 
     const MacAddress &mac();
 

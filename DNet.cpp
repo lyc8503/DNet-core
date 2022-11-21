@@ -3,7 +3,9 @@
 //
 
 #include <cstring>
+#include <optional>
 #include "DNet.h"
+#include "layers/L2/arp/ARP.h"
 
 #if defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN || \
     defined(__BIG_ENDIAN__) || \
@@ -61,8 +63,6 @@ DNet::DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const
 
     ip_layer = new class L3(*this);
 
-
-
     /**
      * all layers are initialized, start!
      */
@@ -90,4 +90,10 @@ void DNet::L3_on_recv(void *buf, size_t size) {
     ip_layer->on_recv(buf, size);
 }
 
+std::optional<MacAddress> DNet::arp_lookup(Ipv4Address address) {
+    return this->ethernet_layer->arp->lookup(address);
+}
 
+ssize_t DNet::L3_send(Ipv4Address target, void *buf, size_t size) {
+    return this->ip_layer->send(target, buf, size);
+}

@@ -87,7 +87,7 @@ union MacAddress {
         return ss.str();
     }
 
-    bool is_broadcast() const {
+    [[nodiscard]] bool is_broadcast() const {
         return bytes[0] == 0xff &&
                bytes[1] == 0xff &&
                bytes[2] == 0xff &&
@@ -109,7 +109,7 @@ union Ipv4Address {
     uint32_be data{};
     uint8_t bytes[4];
 
-    std::string to_string() const {
+    [[nodiscard]] std::string to_string() const {
         std::stringstream ss;
         ss << (int) bytes[0] << "." << (int) bytes[1] << "." << (int) bytes[2] << "." << (int) bytes[3];
         return ss.str();
