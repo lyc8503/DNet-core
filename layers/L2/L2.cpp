@@ -30,11 +30,11 @@ ssize_t L2::send(void *buf, size_t size, MacAddress dest) {
 
     auto* frame = (EthernetFrame*) tmp;
     frame->dest_mac = dest;
-    frame->src_mac = this->context->mac();
+    frame->src_mac = this->context.mac();
     frame->ether_type = EtherType::ARP;
     memcpy(frame->payload, buf, size);
 
-    return this->context->driver_send(tmp, sizeof(EthernetFrame) + size);
+    return this->context.driver_send(tmp, sizeof(EthernetFrame) + size);
 }
 
 void L2::on_recv(void *buf, size_t size) {
@@ -50,7 +50,7 @@ void L2::on_recv(void *buf, size_t size) {
             arp->on_recv(frame->payload, size - sizeof(EthernetFrame));
             break;
         case EtherType::IP:
-            context->L3_on_recv(frame->payload, size - sizeof(EthernetFrame));
+            context.L3_on_recv(frame->payload, size - sizeof(EthernetFrame));
             break;
         default:
             DNET_DEBUG("Unsupported EtherType for L2: %04x, packet dropped.", frame->ether_type.val());
@@ -60,8 +60,7 @@ void L2::on_recv(void *buf, size_t size) {
 
 }
 
-L2::L2(DNet *context) {
-    this->context = context;
-    this->arp = new class ARP(context);
+L2::L2(DNet &context): context(context), arp(new class ARP(context)){
 }
+
 

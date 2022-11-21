@@ -8,6 +8,7 @@
 #include "driver.h"
 #include <sys/ioctl.h>
 #include <stdexcept>
+#include <utility>
 #include <arpa/inet.h>
 #include <net/route.h>
 #include "../defs.h"
@@ -15,9 +16,8 @@
 
 driver::driver() = default;
 
-driver::driver(const std::string& dev, size_t mtu) {
+driver::driver(const std::string& dev, size_t mtu): mtu(mtu) {
     strncpy(this->dev, dev.c_str(), IFNAMSIZ);
-    this->mtu = mtu;
 }
 
 // init device for read on linux
@@ -92,7 +92,7 @@ ssize_t driver::write(void *buf, size_t size) {
 }
 
 void driver::set_callback(std::function<void(void *, size_t)> callback) {
-    this->callback = callback;
+    this->callback = std::move(callback);
 }
 
 void driver::do_listen() {

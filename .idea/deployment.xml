@@ -2,10 +2,10 @@
 <project version="4">
   <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="UbuntuLab (8dfb02b3-5bf8-4296-86e5-56d670f18889)">
+      <paths name="UbuntuCompile (d06bc8ac-8bf9-4723-96de-83b62445cef0)">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/tmp.c1O9UOoX5E" local="$PROJECT_DIR$" />
+            <mapping deploy="/tmp/tmp.evmvDTD0KF" local="$PROJECT_DIR$" />
           </mappings>
           <excludedPaths>
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
