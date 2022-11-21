@@ -15,6 +15,8 @@
 class L2;
 class L3;
 
+enum EtherType : unsigned int;
+
 class DNet {
 
 public:
@@ -22,7 +24,7 @@ public:
 
     ssize_t driver_send(void *buf, size_t size);
 
-    ssize_t L2_send(void *buf, size_t size, MacAddress dest);
+    ssize_t L2_send(void *buf, size_t size, MacAddress dest, EtherType type);
 
     ssize_t L3_send(Ipv4Address target, void* buf, size_t size);
 

@@ -82,8 +82,8 @@ ssize_t DNet::driver_send(void* buf, size_t size) {
     return dri->write(buf, size);
 }
 
-ssize_t DNet::L2_send(void *buf, size_t size, MacAddress dest) {
-    return this->ethernet_layer->send(buf, size, dest);
+ssize_t DNet::L2_send(void *buf, size_t size, MacAddress dest, EtherType type) {
+    return this->ethernet_layer->send(buf, size, dest, type);
 }
 
 void DNet::L3_on_recv(void *buf, size_t size) {

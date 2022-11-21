@@ -35,7 +35,7 @@ ssize_t ARP::send_response(MacAddress sender_mac, Ipv4Address sender_ip, MacAddr
     DNET_DEBUG("Send ARP response: %s", payload.to_string().c_str());
 
     // TODO: actual size of data sent
-    return this->context.L2_send(&payload, sizeof(payload), target_mac);
+    return this->context.L2_send(&payload, sizeof(payload), target_mac, EtherType::ARP);
 }
 
 ssize_t ARP::send_request(MacAddress sender_mac, Ipv4Address sender_ip, MacAddress target_mac, Ipv4Address target_ip) {
@@ -55,7 +55,7 @@ ssize_t ARP::send_request(MacAddress sender_mac, Ipv4Address sender_ip, MacAddre
     DNET_DEBUG("Send ARP request: %s", payload.to_string().c_str());
 
     // TODO: actual size of data sent
-    return this->context.L2_send(&payload, sizeof(payload), target_mac);
+    return this->context.L2_send(&payload, sizeof(payload), target_mac, EtherType::ARP);
 }
 
 

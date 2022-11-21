@@ -12,7 +12,7 @@
 
 class DNet;
 
-enum EtherType {
+enum EtherType : unsigned int {
     ARP = 0x0806,
     IP = 0x0800
 };
@@ -41,7 +41,7 @@ class L2 : Layer {
 public:
     explicit L2(DNet& context);
 
-    ssize_t send(void *buf, size_t size, MacAddress dest);
+    ssize_t send(void *buf, size_t size, MacAddress dest, EtherType type);
 
     void on_recv(void *buf, size_t size) override;
 
