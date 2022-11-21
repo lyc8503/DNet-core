@@ -50,16 +50,16 @@ struct ArpPayload {
 } __attribute__((packed));
 
 struct ArpCacheEntry{
-    MacAddress address;
-    time_t last_update;
-    ArpCacheEntry(){}
+    MacAddress address{};
+    time_t last_update{};
+    ArpCacheEntry() = default;
     explicit ArpCacheEntry(MacAddress _address, time_t _last_update):address(_address), last_update(_last_update){}
 };
 
 class ARP {
 public:
 
-    explicit ARP(DNet *context);
+    explicit ARP(DNet& context);
 
     ssize_t send_response(MacAddress sender_mac, Ipv4Address sender_ip, MacAddress target_mac, Ipv4Address target_ip);
 
@@ -70,7 +70,7 @@ public:
     std::optional<MacAddress> lookup(Ipv4Address);
 
 private:
-    DNet *context;
+    DNet& context;
 
     std::unordered_map<Ipv4Address, ArpCacheEntry, Ipv4AddressHasher> cache;
 

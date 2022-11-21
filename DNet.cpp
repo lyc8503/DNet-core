@@ -47,7 +47,7 @@ DNet::DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const
     /**
      * initialize ethernet layer
      */
-    ethernet_layer = new class L2(this);
+    ethernet_layer = new class L2(*this);
 
     std::function<void(void *, size_t)> L2_on_recv = [&](void *buf, size_t size) -> void {
         this->ethernet_layer->on_recv(buf, size);
@@ -59,7 +59,7 @@ DNet::DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const
      * initialize IP layer
      */
 
-    ip_layer = new class L3(this);
+    ip_layer = new class L3(*this);
 
 
 

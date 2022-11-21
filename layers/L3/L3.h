@@ -54,13 +54,14 @@ static_assert(sizeof(Ipv4Packet) == 20);
 class L3 {
 public:
 
-    explicit L3(DNet* context);
+    explicit L3(DNet& context);
 
     ssize_t send(void *buf, size_t size);
     void on_recv(void *buf, size_t size);
 
 private:
-    DNet* context;
+    DNet& context;
+    class ICMP* icmp;
 };
 
 

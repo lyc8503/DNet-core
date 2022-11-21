@@ -35,7 +35,7 @@ ssize_t ARP::send_response(MacAddress sender_mac, Ipv4Address sender_ip, MacAddr
     DNET_DEBUG("Send ARP response: %s", payload.to_string().c_str());
 
     // TODO: actual size of data sent
-    return this->context->L2_send(&payload, sizeof(payload), target_mac);
+    return this->context.L2_send(&payload, sizeof(payload), target_mac);
 }
 
 ssize_t ARP::send_request(MacAddress sender_mac, Ipv4Address sender_ip, MacAddress target_mac, Ipv4Address target_ip) {
@@ -55,7 +55,7 @@ ssize_t ARP::send_request(MacAddress sender_mac, Ipv4Address sender_ip, MacAddre
     DNET_DEBUG("Send ARP request: %s", payload.to_string().c_str());
 
     // TODO: actual size of data sent
-    return this->context->L2_send(&payload, sizeof(payload), target_mac);
+    return this->context.L2_send(&payload, sizeof(payload), target_mac);
 }
 
 
@@ -73,9 +73,9 @@ void ARP::on_recv(void *buf, size_t size) {
 
     switch (payload->opcode.val()) {
         case ARP_REQUEST:
-            if (context->subnet().contains(payload->target_ip)) {
+            if (context.subnet().contains(payload->target_ip)) {
                 // The sender is now the target
-                send_response(context->mac(), payload->target_ip, payload->sender_mac, payload->sender_ip);
+                send_response(context.mac(), payload->target_ip, payload->sender_mac, payload->sender_ip);
             }
             break;
         case ARP_RESPONSE:
@@ -97,13 +97,12 @@ std::optional<MacAddress> ARP::lookup(Ipv4Address address) {
     if (entry == cache.end() || entry->second.last_update + ARP_CACHE_TTL < time(nullptr)) {
         //not in cache or has expired
         DNET_DEBUG("ARP cache missed. Sending request");
-        send_request(context->mac(), context->subnet().network, MacAddress::get_broadcast_address(), address);
+        send_request(context.mac(), context.subnet().network, MacAddress::get_broadcast_address(), address);
         return {};
     }
     DNET_DEBUG("ARP cache hit. %s is %s.", address.to_string().c_str(), entry->second.address.to_string().c_str());
     return entry->second.address;
 }
 
-ARP::ARP(DNet *context) {
-    this->context = context;
+ARP::ARP(DNet& context): context(context) {
 }
