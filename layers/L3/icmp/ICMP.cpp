@@ -36,14 +36,15 @@ void ICMP::send(uint8_t type, uint8_t code, uint32_be rest_of_header, uint8_t *d
     datagram->code = code;
     datagram->rest_of_header = rest_of_header;
     memcpy(datagram->data, data, size);
-    datagram->checksum = checksum_16bit((const uint16_be*) buf, size / 2);
+    datagram->checksum = 0x0000;
+    datagram->checksum = checksum_16bit((const uint16_be*) buf, (sizeof(ICMPDatagram) + size) / 2);
 
     DNET_DEBUG("ICMP send: %s", datagram->to_string().c_str());
 
 
     // TODO: just some test code, should be removed.
     Ipv4Address testAddr;
-    testAddr.parse_string("192.168.1.13");
+    testAddr.parse_string("172.25.179.9");
     context.L3_send(testAddr, buf, sizeof(buf));
 }
 

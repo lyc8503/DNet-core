@@ -72,10 +72,12 @@ ssize_t L3::send(Ipv4Address target, void* buf, size_t size) {
     packet->version = 4;
     packet->ihl = sizeof(Ipv4Packet) / 4;
     packet->protocol = ICMP;
-    packet->header_checksum = checksum_16bit((uint16_be*) packet, sizeof(Ipv4Packet) / 2);
     packet->src_ip.parse_string("10.0.0.1");  // TODO
     packet->dest_ip = target;
     packet->total_len = sizeof(Ipv4Packet) + size;
+    packet->header_checksum = 0x0000;
+    packet->header_checksum = checksum_16bit((uint16_be*) packet, sizeof(Ipv4Packet) / 2);
+    
 
     // TODO: more args
     memcpy(packet->data, buf, size);
