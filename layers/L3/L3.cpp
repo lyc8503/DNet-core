@@ -56,7 +56,7 @@ void L3::on_recv(void *buf, size_t size) {
 
     switch (packet->protocol) {
         case ICMP:
-            icmp->on_recv(packet->data, size - packet->ihl * 4);
+            icmp->on_recv(packet->data, size - packet->ihl * 4, packet->src_ip, packet->dest_ip);
             break;
         default:
             DNET_ASSERT(false, "Unknown Ipv4 Protocol: " + std::to_string(packet->protocol));
@@ -64,15 +64,15 @@ void L3::on_recv(void *buf, size_t size) {
 
 }
 
-ssize_t L3::send(Ipv4Address target, void* buf, size_t size) {
-    char tmp[sizeof(Ipv4Packet) + size];
+ssize_t L3::send(Ipv4Address src, Ipv4Address target, void* buf, size_t size) {
+    char tmp[sizeof(Ipv4Packet) + size]{};
     auto* packet = (Ipv4Packet*) tmp;
     
     // Set packet headers
     packet->version = 4;
     packet->ihl = sizeof(Ipv4Packet) / 4;
     packet->protocol = ICMP;
-    packet->src_ip.parse_string("10.0.0.1");  // TODO
+    packet->src_ip = src;
     packet->dest_ip = target;
     packet->total_len = sizeof(Ipv4Packet) + size;
     packet->header_checksum = 0x0000;

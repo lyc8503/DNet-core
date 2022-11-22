@@ -12,9 +12,9 @@ class ICMP {
 public:
     explicit ICMP(DNet& context);
 
-    void on_recv(void* buf, size_t size);
+    void on_recv(void* buf, size_t size, Ipv4Address src, Ipv4Address dest);
 
-    void send(uint8_t type, uint8_t code, uint32_be rest_of_header, uint8_t* data, size_t size);
+    void send(uint8_t type, uint8_t code, uint32_be rest_of_header, uint8_t* data, size_t size, Ipv4Address src, Ipv4Address dest);
 
 private:
     DNet& context;

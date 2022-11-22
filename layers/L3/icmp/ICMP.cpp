@@ -7,7 +7,7 @@
 #include "../../../util/util.h"
 
 
-void ICMP::on_recv(void *buf, size_t size) {
+void ICMP::on_recv(void *buf, size_t size, Ipv4Address src, Ipv4Address dest) {
 
     auto* datagram = (ICMPDatagram*) buf;
     DNET_DEBUG("ICMP recv: %s", datagram->to_string().c_str());
@@ -21,14 +21,14 @@ void ICMP::on_recv(void *buf, size_t size) {
         case ICMP_TYPE::ECHO_REPLY:
             break;
         case ICMP_TYPE::ECHO_REQUEST:
-            send(ICMP_TYPE::ECHO_REPLY, 0, (uint32_be) datagram->rest_of_header, datagram->data, size - sizeof(ICMPDatagram));
+            send(ICMP_TYPE::ECHO_REPLY, 0, (uint32_be) datagram->rest_of_header, datagram->data, size - sizeof(ICMPDatagram), dest, src);
             break;
         default:
             DNET_ASSERT(false, "Unknown ICMP type.");
     }
 }
 
-void ICMP::send(uint8_t type, uint8_t code, uint32_be rest_of_header, uint8_t *data, size_t size) {
+void ICMP::send(uint8_t type, uint8_t code, uint32_be rest_of_header, uint8_t *data, size_t size, Ipv4Address src, Ipv4Address dest) {
     char buf[sizeof(ICMPDatagram) + size];
     auto* datagram = (ICMPDatagram*) buf;
 
@@ -42,10 +42,7 @@ void ICMP::send(uint8_t type, uint8_t code, uint32_be rest_of_header, uint8_t *d
     DNET_DEBUG("ICMP send: %s", datagram->to_string().c_str());
 
 
-    // TODO: just some test code, should be removed.
-    Ipv4Address testAddr;
-    testAddr.parse_string("172.25.179.9");
-    context.L3_send(testAddr, buf, sizeof(buf));
+    context.L3_send(src, dest, buf, sizeof(buf));
 }
 
 ICMP::ICMP(DNet& context): context(context) {

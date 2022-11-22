@@ -26,7 +26,7 @@ public:
 
     ssize_t L2_send(void *buf, size_t size, MacAddress dest, EtherType type);
 
-    ssize_t L3_send(Ipv4Address target, void* buf, size_t size);
+    ssize_t L3_send(Ipv4Address src, Ipv4Address target, void* buf, size_t size);
 
     void L3_on_recv(void* buf, size_t size);
 
