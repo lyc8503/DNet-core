@@ -94,6 +94,6 @@ std::optional<MacAddress> DNet::arp_lookup(Ipv4Address address) {
     return this->ethernet_layer->arp->lookup(address);
 }
 
-ssize_t DNet::L3_send(Ipv4Address target, void *buf, size_t size) {
-    return this->ip_layer->send(target, buf, size);
+ssize_t DNet::L3_send(Ipv4Address src, Ipv4Address target, void *buf, size_t size) {
+    return this->ip_layer->send(src, target, buf, size);
 }
