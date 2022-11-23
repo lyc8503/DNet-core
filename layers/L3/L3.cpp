@@ -75,9 +75,10 @@ ssize_t L3::send(Ipv4Address src, Ipv4Address target, void* buf, size_t size) {
     packet->src_ip = src;
     packet->dest_ip = target;
     packet->total_len = sizeof(Ipv4Packet) + size;
+    packet->ttl = 64;
     packet->header_checksum = 0x0000;
     packet->header_checksum = checksum_16bit((uint16_be*) packet, sizeof(Ipv4Packet) / 2);
-    
+
 
     // TODO: more args
     memcpy(packet->data, buf, size);

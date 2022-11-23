@@ -70,7 +70,7 @@ bool driver::init_dev() {
     }
     close(fd_);
 
-    memcpy(mac, &ifr.ifr_hwaddr, 6);
+    memcpy(mac, ifr.ifr_hwaddr.sa_data, 6);
     return true;
 }
 
