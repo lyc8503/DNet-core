@@ -20,7 +20,7 @@ private:
     DNet& context;
 };
 
-enum ICMP_TYPE {
+enum class ICMP_TYPE {
     ECHO_REPLY = 0, ECHO_REQUEST = 8
 };
 

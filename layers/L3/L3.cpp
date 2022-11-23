@@ -32,7 +32,7 @@ std::ostream &operator<<(std::ostream &os, IPV4_PROTOCOL t) {
 
 
 L3::L3(DNet& context): context(context) {
-    icmp = new class ICMP(context);
+    icmp = new ICMP(context);
 }
 
 void L3::on_recv(void *buf, size_t size) {
@@ -54,8 +54,8 @@ void L3::on_recv(void *buf, size_t size) {
 
     // TODO: process left args of ipv4 packet.
 
-    switch (packet->protocol) {
-        case ICMP:
+    switch ((IPV4_PROTOCOL) packet->protocol) {
+        case IPV4_PROTOCOL::ICMP:
             icmp->on_recv(packet->data, size - packet->ihl * 4, packet->src_ip, packet->dest_ip);
             break;
         default:
@@ -71,7 +71,7 @@ ssize_t L3::send(Ipv4Address src, Ipv4Address target, void* buf, size_t size) {
     // Set packet headers
     packet->version = 4;
     packet->ihl = sizeof(Ipv4Packet) / 4;
-    packet->protocol = ICMP;
+    packet->protocol = static_cast<uint8_t>(IPV4_PROTOCOL::ICMP);
     packet->src_ip = src;
     packet->dest_ip = target;
     packet->total_len = sizeof(Ipv4Packet) + size;

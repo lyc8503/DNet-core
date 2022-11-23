@@ -26,7 +26,7 @@ ssize_t ARP::send_response(MacAddress sender_mac, Ipv4Address sender_ip, MacAddr
     payload.ptype = 0x0800;  // Hardcoded, ipv4
     payload.hlen = 6;
     payload.plen = 4;
-    payload.opcode = ARP_OPCODE::ARP_RESPONSE;
+    payload.opcode = static_cast<const uint16_t>(ARP_OPCODE::ARP_RESPONSE);
     payload.sender_mac = sender_mac;
     payload.sender_ip = sender_ip;
     payload.target_mac = target_mac;
@@ -46,7 +46,7 @@ ssize_t ARP::send_request(MacAddress sender_mac, Ipv4Address sender_ip, MacAddre
     payload.ptype = 0x0800;  // Hardcoded, ipv4
     payload.hlen = 6;
     payload.plen = 4;
-    payload.opcode = ARP_OPCODE::ARP_REQUEST;
+    payload.opcode = static_cast<const uint16_t>(ARP_OPCODE::ARP_REQUEST);
     payload.sender_mac = sender_mac;
     payload.sender_ip = sender_ip;
     payload.target_mac = target_mac;
@@ -71,14 +71,14 @@ void ARP::on_recv(void *buf, size_t size) {
 
     DNET_DEBUG("Received ARP: %s", payload->to_string().c_str());
 
-    switch (payload->opcode.val()) {
-        case ARP_REQUEST:
+    switch ((ARP_OPCODE) payload->opcode.val()) {
+        case ARP_OPCODE::ARP_REQUEST:
             if (context.subnet().contains(payload->target_ip)) {
                 // The sender is now the target
                 send_response(context.mac(), payload->target_ip, payload->sender_mac, payload->sender_ip);
             }
             break;
-        case ARP_RESPONSE:
+        case ARP_OPCODE::ARP_RESPONSE:
             //Put it into cache
             cache[payload->sender_ip] = ArpCacheEntry(payload->sender_mac, time(nullptr));
             DNET_DEBUG("cache[%s] is now: %s", payload->sender_ip.to_string().c_str(),

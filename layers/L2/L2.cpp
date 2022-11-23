@@ -31,7 +31,7 @@ ssize_t L2::send(void *buf, size_t size, MacAddress dest, EtherType type) {
     auto* frame = (EthernetFrame*) tmp;
     frame->dest_mac = dest;
     frame->src_mac = this->context.mac();
-    frame->ether_type = type;
+    frame->ether_type = (uint16_t) type;
     memcpy(frame->payload, buf, size);
 
     DNET_DEBUG("L2 send: %s", frame->to_string().c_str());
@@ -46,7 +46,7 @@ void L2::on_recv(void *buf, size_t size) {
 
     DNET_DEBUG("L2 recv: %s", frame->to_string().c_str());
 
-    switch (frame->ether_type.val()) {
+    switch ((EtherType) frame->ether_type.val()) {
         case EtherType::ARP:
 //            DNET_ASSERT(frame->dest_mac.is_broadcast());
             arp->on_recv(frame->payload, size - sizeof(EthernetFrame));
@@ -62,7 +62,7 @@ void L2::on_recv(void *buf, size_t size) {
 
 }
 
-L2::L2(DNet &context): context(context), arp(new class ARP(context)){
+L2::L2(DNet &context): context(context), arp(new ARP(context)){
 }
 
 

@@ -19,7 +19,7 @@ const time_t ARP_CACHE_TTL=120;//in seconds
 
 
 // RARP is not included
-enum ARP_OPCODE {
+enum class ARP_OPCODE {
     ARP_REQUEST = 1, ARP_RESPONSE = 2
 };
 

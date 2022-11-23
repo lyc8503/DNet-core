@@ -15,7 +15,7 @@
 class L2;
 class L3;
 
-enum EtherType : unsigned int;
+enum class EtherType;
 
 class DNet {
 
