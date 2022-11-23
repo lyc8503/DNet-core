@@ -17,11 +17,11 @@ void ICMP::on_recv(void *buf, size_t size, Ipv4Address src, Ipv4Address dest) {
     datagram->checksum = 0x0000;
     DNET_ASSERT(checksum_16bit((const uint16_be*) buf, size / 2) == checksum, "Checksum Mismatch.");
 
-    switch (datagram->type) {
+    switch ((ICMP_TYPE) datagram->type) {
         case ICMP_TYPE::ECHO_REPLY:
             break;
         case ICMP_TYPE::ECHO_REQUEST:
-            send(ICMP_TYPE::ECHO_REPLY, 0, (uint32_be) datagram->rest_of_header, datagram->data, size - sizeof(ICMPDatagram), dest, src);
+            send(static_cast<uint8_t>(ICMP_TYPE::ECHO_REPLY), 0, (uint32_be) datagram->rest_of_header, datagram->data, size - sizeof(ICMPDatagram), dest, src);
             break;
         default:
             DNET_ASSERT(false, "Unknown ICMP type.");

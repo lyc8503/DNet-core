@@ -104,7 +104,11 @@ void driver::do_listen() {
 
         DNET_DEBUG("Driver payload recv: %ld bytes", ret);
 
-        this->callback(data, ret);
+        try {
+            this->callback(data, ret);
+        } catch (std::exception& e) {
+            DNET_ERROR("Error occurred while processing packet, packet dropped: %s", e.what());
+        }
     }
     DNET_DEBUG("Driver do listen exit.");
 }

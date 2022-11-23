@@ -11,7 +11,7 @@
 
 class DNet;
 
-enum IPV4_PROTOCOL {
+enum class IPV4_PROTOCOL {
     ICMP = 1, IGMP = 2, TCP = 6, UDP = 17, ENCAP = 41, OSPF = 89, SCTP = 132
 };
 

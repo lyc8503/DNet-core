@@ -12,7 +12,7 @@
 
 class DNet;
 
-enum EtherType : unsigned int {
+enum class EtherType {
     ARP = 0x0806,
     IP = 0x0800
 };
