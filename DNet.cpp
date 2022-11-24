@@ -63,6 +63,13 @@ DNet::DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const
 
     ip_layer = new class L3(*this);
 
+
+    /**
+     * initialize Transport layer
+     */
+    
+    transport_layer = new class L4(*this);
+
     /**
      * all layers are initialized, start!
      */
@@ -97,3 +104,10 @@ std::optional<MacAddress> DNet::arp_lookup(Ipv4Address address) {
 ssize_t DNet::L3_send(Ipv4Address src, Ipv4Address target, void *buf, size_t size) {
     return this->ip_layer->send(src, target, buf, size);
 }
+
+void DNet::L4_on_recv(void *buf, size_t size, IPV4_PROTOCOL protocol) {
+    this->transport_layer->on_recv(buf, size, protocol);
+}
+
+
+
