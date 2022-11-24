@@ -10,12 +10,15 @@
 #include "layers/defs.h"
 #include "layers/L2/L2.h"
 #include "layers/L3/L3.h"
+#include "layers/L4/L4.h"
 #include <optional>
 
 class L2;
 class L3;
+class L4;
 
 enum class EtherType;
+enum class IPV4_PROTOCOL;
 
 class DNet {
 
@@ -27,6 +30,10 @@ public:
     ssize_t L2_send(void *buf, size_t size, MacAddress dest, EtherType type);
 
     ssize_t L3_send(Ipv4Address src, Ipv4Address target, void* buf, size_t size);
+
+    ssize_t L4_send(void*buf, size_t size);
+    
+    void L4_on_recv(void* buf, size_t size, IPV4_PROTOCOL protocol);
 
     void L3_on_recv(void* buf, size_t size);
 
@@ -40,6 +47,7 @@ private:
     driver *dri;
     L2 *ethernet_layer;
     L3 *ip_layer;
+    L4 *transport_layer;
 
     Ipv4Subnet ipv4_subnet;
     MacAddress mac_address;
