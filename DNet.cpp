@@ -105,8 +105,8 @@ ssize_t DNet::L3_send(Ipv4Address src, Ipv4Address target, void *buf, size_t siz
     return this->ip_layer->send(src, target, buf, size);
 }
 
-void DNet::L4_on_recv(void *buf, size_t size, IPV4_PROTOCOL protocol) {
-    this->transport_layer->on_recv(buf, size, protocol);
+void DNet::L4_on_recv(void *buf, size_t size, L3Context l3_context) {
+    this->transport_layer->on_recv(buf, size, l3_context);
 }
 
 

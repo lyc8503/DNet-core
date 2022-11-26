@@ -19,3 +19,7 @@
    brctl setageing br0 0 # https://serverfault.com/questions/878353/bridge-doesnt-forward-all-traffic-ubuntu-xenial
    echo 1 > /proc/sys/net/ipv4/ip_forward # might not needed
    ```
+
+some reference:
+- https://openvpn.net/community-resources/ethernet-bridging/#linuxscript
+- https://yuerblog.cc/2017/01/22/understand-bridge-and-dhcp/

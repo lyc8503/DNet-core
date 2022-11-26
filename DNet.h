@@ -20,6 +20,8 @@ class L4;
 enum class EtherType;
 enum class IPV4_PROTOCOL;
 
+struct L3Context;
+
 class DNet {
 
 public:
@@ -33,7 +35,7 @@ public:
 
     ssize_t L4_send(void*buf, size_t size);
     
-    void L4_on_recv(void* buf, size_t size, IPV4_PROTOCOL protocol);
+    void L4_on_recv(void* buf, size_t size, L3Context l3_context);
 
     void L3_on_recv(void* buf, size_t size);
 

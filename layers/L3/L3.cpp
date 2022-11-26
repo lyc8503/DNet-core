@@ -50,7 +50,7 @@ void L3::on_recv(void *buf, size_t size) {
     // Verify checksum
     uint16_t checksum = packet->header_checksum.val();
     packet->header_checksum = 0x0000;
-    DNET_ASSERT(checksum == checksum_16bit((uint16_be*) buf, sizeof(Ipv4Packet) / 2), "Checksum Mismatch.");
+    DNET_ASSERT(checksum == checksum_16bit_be(buf, sizeof(Ipv4Packet)), "Checksum Mismatch.");
 
     // TODO: process left args of ipv4 packet.
 
@@ -58,8 +58,15 @@ void L3::on_recv(void *buf, size_t size) {
         case IPV4_PROTOCOL::ICMP:
             icmp->on_recv(packet->data, size - packet->ihl * 4, packet->src_ip, packet->dest_ip);
             break;
-        default:
-            DNET_ASSERT(false, "Unknown Ipv4 Protocol: " + std::to_string(packet->protocol));
+        default: {
+            struct L3Context l3_context;
+            l3_context.src_ip = packet->src_ip;
+            l3_context.dest_ip = packet->dest_ip;
+            l3_context.protocol = (IPV4_PROTOCOL) packet->protocol;
+
+            context.L4_on_recv(packet->data, size - packet->ihl * 4, l3_context);
+        }
+//            DNET_ASSERT(false, "Unknown Ipv4 Protocol: " + std::to_string(packet->protocol));
     }
 
 }
@@ -77,7 +84,7 @@ ssize_t L3::send(Ipv4Address src, Ipv4Address target, void* buf, size_t size) {
     packet->total_len = sizeof(Ipv4Packet) + size;
     packet->ttl = 64;
     packet->header_checksum = 0x0000;
-    packet->header_checksum = checksum_16bit((uint16_be*) packet, sizeof(Ipv4Packet) / 2);
+    packet->header_checksum = checksum_16bit_be(packet, sizeof(Ipv4Packet));
 
 
     // TODO: more args
