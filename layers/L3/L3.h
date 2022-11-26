@@ -18,6 +18,12 @@ enum class IPV4_PROTOCOL {
 std::ostream &operator<<(std::ostream &os, IPV4_PROTOCOL t);
 
 
+struct L3Context {
+    Ipv4Address src_ip;
+    Ipv4Address dest_ip;
+    IPV4_PROTOCOL protocol;
+};
+
 // https://zh.wikipedia.org/wiki/IPv4
 struct Ipv4Packet {
     uint8_t ihl: 4;

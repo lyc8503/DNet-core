@@ -55,9 +55,7 @@ void L2::on_recv(void *buf, size_t size) {
             context.L3_on_recv(frame->payload, size - sizeof(EthernetFrame));
             break;
         default:
-            DNET_DEBUG("Unsupported EtherType for L2: %04x, packet dropped.", frame->ether_type.val());
-            break;
-
+            DNET_ASSERT(false, "Unsupported EtherType for L2: " + int_to_hex(frame->ether_type.val()));
     }
 
 }
