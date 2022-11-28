@@ -12,12 +12,12 @@
  * @return
  */
 uint16_t checksum_16bit_be(const void *src, size_t len) {
-    auto *buf = (uint16_be *) src;
+    auto *buf = (const uint16_t *) src;
 
     uint32_t ret = 0;
 
     while (len > 1) {
-        ret += buf->val();
+        ret += *buf;
         buf++;
         len -= 2;
     }
@@ -28,9 +28,6 @@ uint16_t checksum_16bit_be(const void *src, size_t len) {
 
     ret = ~((ret >> 16) + ret & 0xffff);
 
-    if (ret == 0) {
-        return 0xffff;  // If the computed checksum is zero, it is transmitted as all ones
-    } else {
-        return ret;
-    }
+    // TODO: If the computed checksum is zero, it is transmitted as all ones
+    return reinterpret_cast<uint16_be*>(&ret)->val();
 }
