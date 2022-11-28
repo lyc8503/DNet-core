@@ -48,9 +48,7 @@ void L3::on_recv(void *buf, size_t size) {
     DNET_ASSERT(packet->ihl * 4 == sizeof(Ipv4Packet), "Ipv4 Options field not implemented.");
 
     // Verify checksum
-    uint16_t checksum = packet->header_checksum.val();
-    packet->header_checksum = 0x0000;
-    DNET_ASSERT(checksum == checksum_16bit_be(buf, sizeof(Ipv4Packet)), "Checksum Mismatch.");
+    DNET_ASSERT(checksum_16bit_be(buf, sizeof(Ipv4Packet)) == 0, "Checksum Mismatch.");
 
     // TODO: process left args of ipv4 packet.
 

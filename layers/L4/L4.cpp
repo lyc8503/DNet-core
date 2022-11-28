@@ -28,15 +28,12 @@ void L4::on_recv(void *buf, size_t size, L3Context l3_context) {
                 pseudo_header.protocol = (uint8_t) IPV4_PROTOCOL::UDP;
                 pseudo_header.length = datagram->length;
 
-                uint16_t checksum = datagram->checksum.val();
-                datagram->checksum = 0x0000;
-
                 // TODO: optimize here
                 char tmp[size + sizeof(PseudoHeader)];
                 memcpy(tmp, &pseudo_header, sizeof(PseudoHeader));
                 memcpy(tmp + sizeof(PseudoHeader), datagram, size);
 
-                DNET_ASSERT(checksum_16bit_be(tmp, size + sizeof(PseudoHeader)) == checksum, "Checksum Mismatch.");
+                DNET_ASSERT(checksum_16bit_be(tmp, size + sizeof(PseudoHeader)) == 0, "Checksum Mismatch.");
             }
 
             break;

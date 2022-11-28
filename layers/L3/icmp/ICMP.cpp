@@ -13,9 +13,7 @@ void ICMP::on_recv(void *buf, size_t size, Ipv4Address src, Ipv4Address dest) {
     DNET_DEBUG("ICMP recv: %s", datagram->to_string().c_str());
 
     // Checksum
-    uint16_t checksum = datagram->checksum.val();
-    datagram->checksum = 0x0000;
-    DNET_ASSERT(checksum_16bit_be(buf, size) == checksum, "Checksum Mismatch.");
+    DNET_ASSERT(checksum_16bit_be(buf, size) == 0, "Checksum Mismatch.");
 
     switch ((ICMP_TYPE) datagram->type) {
         case ICMP_TYPE::ECHO_REPLY:
