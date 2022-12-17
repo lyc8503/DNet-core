@@ -76,7 +76,7 @@ ssize_t L3::send(Ipv4Address src, Ipv4Address target, void* buf, size_t size) {
     // Set packet headers
     packet->version = 4;
     packet->ihl = sizeof(Ipv4Packet) / 4;
-    packet->protocol = static_cast<uint8_t>(IPV4_PROTOCOL::ICMP);
+    packet->protocol = static_cast<uint8_t>(IPV4_PROTOCOL::UDP);  // TODO: correct protocol!
     packet->src_ip = src;
     packet->dest_ip = target;
     packet->total_len = sizeof(Ipv4Packet) + size;
