@@ -32,6 +32,7 @@ struct EthernetFrame {
         ss << "EthernetFrame [dest_mac=" << dest_mac.to_string() << ", src_mac=" << src_mac.to_string() << ", ether_type=" << (EtherType) ether_type.val() << "]";
         return ss.str();
     }
+
 } __attribute__((packed));
 
 static_assert(sizeof(EthernetFrame) == 14);

@@ -35,6 +35,8 @@ struct UdpDatagram {
         ss << ", length=" << length.val() << ", checksum=" << int_to_hex(checksum.val()) << "]";
         return ss.str();
     }
+
+
 } __attribute__((packed));
 
 class L4 {
