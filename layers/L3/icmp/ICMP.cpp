@@ -39,7 +39,7 @@ void ICMP::send(uint8_t type, uint8_t code, uint32_be rest_of_header, uint8_t *d
 
     DNET_DEBUG("ICMP send: %s", datagram->to_string().c_str());
 
-    context.L3_send(src, dest, buf, sizeof(buf));
+    context.L3_send(src, dest, IPV4_PROTOCOL::ICMP, buf, sizeof(buf));
 }
 
 ICMP::ICMP(DNet& context): context(context) {
