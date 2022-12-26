@@ -67,7 +67,7 @@ size_t L4::send(void *buf, size_t size, L3Context l3_context) {
     // TODO: JUDGE FROM THE PROTOCOL AND CONSTRUCT THE DATA
 
     DNET_DEBUG("L4 send: %s", ((UdpDatagram*) buf)->to_string().c_str());
-    this->context.L3_send(l3_context.src_ip, l3_context.dest_ip, buf, size);
+    this->context.L3_send(l3_context.src_ip, l3_context.dest_ip, IPV4_PROTOCOL::UDP, buf, size);
     return 0;
 }
 
