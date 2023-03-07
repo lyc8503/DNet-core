@@ -21,6 +21,28 @@ An implementation of TCP/IP network stack in user space. DNet stands for DisconN
   相关配置方法的说明文档
 ```
 
+#### 如何运行该项目
+经过测试的系统环境: Ubuntu 22.04 LTS, 其他系统应该也可以运行
+
+```
+# 安装相关依赖
+sudo apt install build-essential git cmake
+
+# Clone 项目
+git clone https://github.com/lyc8503/DNet-core
+
+# 使用 CMake 编译
+cd DNet-core && mkdir build && cd build && cmake .. && make
+
+# 创建 /dev/net/tap
+sudo mknod /dev/net/tap c 10 200
+
+# 运行 DNet
+sudo ./DNet
+```
+
+运行后会创建 TAP 设备, 可使用 ifconfig 或 ip a 查看, 默认会使用 10.0.0.0/24 段, 可以测试 arping/ping/UDP Echo, 如和局域网有冲突可修改 main.cpp 中的 IP 段.
+
 #### To-Dos
 - 实现 TCP 状态机
 - 实现常见的一些应用层协议
