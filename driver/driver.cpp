@@ -68,8 +68,24 @@ bool driver::init_dev() {
         close(fd_);
         return false;
     }
-    close(fd_);
+    DNET_DEBUG("Driver hwaddr: %02x:%02x:%02x:%02x:%02x:%02x",
+               (uint8_t) ifr.ifr_hwaddr.sa_data[0],
+               (uint8_t) ifr.ifr_hwaddr.sa_data[1],
+               (uint8_t) ifr.ifr_hwaddr.sa_data[2],
+               (uint8_t) ifr.ifr_hwaddr.sa_data[3],
+               (uint8_t) ifr.ifr_hwaddr.sa_data[4],
+               (uint8_t) ifr.ifr_hwaddr.sa_data[5]
+    );
 
+    // set mac back to set NET_ADDR_SET flag
+    // so that NetworkManager or whatever won't override it
+    if (ioctl(fd_, SIOCSIFHWADDR, &ifr) < 0) {
+        DNET_ERROR("Could not ioctl set hwaddr: %s", strerror(errno));
+        close(fd_);
+        return false;
+    }
+
+    close(fd_);
     memcpy(mac, ifr.ifr_hwaddr.sa_data, 6);
     return true;
 }

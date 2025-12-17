@@ -90,12 +90,22 @@ ssize_t L3::send(Ipv4Address src, Ipv4Address target, IPV4_PROTOCOL protocol, vo
 
     DNET_DEBUG("L3 send: %s", packet->to_string().c_str());
 
-    std::optional<MacAddress> addr = context.arp_lookup(target);
+    if (this->context.subnet().contains(target)) {
+        // within the same subnet
+        std::optional<MacAddress> addr = context.arp_lookup(target);
+        // DNET_ASSERT(addr.has_value(), "Arp cache missing.");
 
-//    DNET_ASSERT(addr.has_value(), "Arp cache missing.");
-
-    if (addr.has_value()) {
-        context.L2_send(tmp, sizeof(Ipv4Packet) + size, addr.value(), EtherType::IP);
+        if (addr.has_value()) {
+            DNET_DEBUG("L3 within subnet, ARP result for IP: %s", addr->to_string().c_str());
+            context.L2_send(tmp, sizeof(Ipv4Packet) + size, addr.value(), EtherType::IP);
+        } else {
+            DNET_DEBUG("ARP cache missing for IP: %s", target.to_string().c_str());
+        }
+    } else {
+        // outside the subnet, send to kernel for routing
+        MacAddress tap_mac = context.tap_mac();
+        DNET_DEBUG("L3 outside subnet, send to TAP MAC: %s", tap_mac.to_string().c_str());
+        context.L2_send(tmp, sizeof(Ipv4Packet) + size, tap_mac, EtherType::IP);
     }
 
     return 0;  // TODO

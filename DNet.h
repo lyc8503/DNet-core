@@ -25,7 +25,7 @@ struct L3Context;
 class DNet {
 
 public:
-    DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const std::string &gen_mask);
+    DNet(const std::string &ifname, int mtu, const std::string &mac, const std::string &dest_ip, const std::string &gen_mask);
 
     ssize_t driver_send(void *buf, size_t size);
 
@@ -42,6 +42,8 @@ public:
     std::optional<MacAddress> arp_lookup(Ipv4Address address);
 
     const MacAddress &mac();
+
+    const MacAddress tap_mac();
 
     const Ipv4Subnet &subnet();
 

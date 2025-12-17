@@ -102,6 +102,12 @@ union MacAddress {
         }
         return *this;
     }
+
+    void parse_string(const std::string &mac_str) {
+        if (sscanf(mac_str.c_str(), "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &bytes[0], &bytes[1], &bytes[2], &bytes[3], &bytes[4], &bytes[5]) != 6) {
+            throw std::invalid_argument("Invalid mac address: " + mac_str);
+        }
+    }
 } __attribute__((packed));
 
 

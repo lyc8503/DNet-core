@@ -25,10 +25,11 @@
 #error "Unknown architecture!"
 #endif
 
-DNet::DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const std::string &gen_mask) {
+DNet::DNet(const std::string &ifname, int mtu, const std::string &mac, const std::string &dest_ip, const std::string &gen_mask) {
     /**
      * initialize args
      */
+    this->mac_address.parse_string(mac);
     this->ipv4_subnet.network.parse_string(dest_ip);
     this->ipv4_subnet.mask.parse_string(gen_mask);
 
@@ -77,8 +78,13 @@ DNet::DNet(const std::string &ifname, int mtu, const std::string &dest_ip, const
 }
 
 const MacAddress &DNet::mac() {
-    memcpy(this->mac_address.bytes, this->dri->get_mac(), IFHWADDRLEN);
     return this->mac_address;
+}
+
+const MacAddress DNet::tap_mac() {
+    MacAddress dri_mac;
+    memcpy(&dri_mac, this->dri->get_mac(), 6);
+    return dri_mac;
 }
 
 const Ipv4Subnet &DNet::subnet() {
