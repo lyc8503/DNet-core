@@ -6,7 +6,7 @@
 #define DNET_L3_H
 
 #include <cstdint>
-#include "../defs.h"
+#include "../../defs.h"
 #include "../../DNet.h"
 
 class DNet;

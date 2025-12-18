@@ -6,7 +6,7 @@
 #define DNET_UTIL_H
 
 #include <cstdint>
-#include "../layers/defs.h"
+#include "../defs.h"
 
 uint16_t checksum_16bit_be(const void *src, size_t len);
 

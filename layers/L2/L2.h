@@ -7,7 +7,7 @@
 
 #include <cstdint>
 #include "../Layer.h"
-#include "../defs.h"
+#include "../../defs.h"
 #include "../../DNet.h"
 
 class DNet;

@@ -5,7 +5,7 @@
 #ifndef DNET_ICMP_H
 #define DNET_ICMP_H
 
-#include "../../defs.h"
+#include "../../../defs.h"
 #include "../../../DNet.h"
 
 class ICMP {

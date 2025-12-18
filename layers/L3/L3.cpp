@@ -5,7 +5,6 @@
 #include <optional>
 #include "L3.h"
 #include "../../defs.h"
-#include "../../util/util.h"
 #include "icmp/ICMP.h"
 
 

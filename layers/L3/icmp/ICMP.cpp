@@ -4,7 +4,6 @@
 
 #include "ICMP.h"
 #include "../../../defs.h"
-#include "../../../util/util.h"
 
 
 void ICMP::on_recv(void *buf, size_t size, Ipv4Address src, Ipv4Address dest) {

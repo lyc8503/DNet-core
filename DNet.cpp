@@ -115,5 +115,6 @@ void DNet::L4_on_recv(void *buf, size_t size, L3Context l3_context) {
     this->transport_layer->on_recv(buf, size, l3_context);
 }
 
-
-
+ssize_t DNet::L4_send(void*buf, size_t size, L3Context l3_context) {
+    return this->transport_layer->send(buf, size, l3_context);
+}
