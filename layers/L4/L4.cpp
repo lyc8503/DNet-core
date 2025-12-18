@@ -6,15 +6,21 @@
 #include "L4.h"
 #include "../../defs.h"
 #include "udp/UDP.h"
+#include "tcp/TCP.h"
 
 L4::L4(DNet &context) : context(context) {
     udp = new UDP(context);
+    tcp = new TCP(context);
 }
 
 void L4::on_recv(void *buf, size_t size, L3Context l3_context) {
     switch (l3_context.protocol) {
         case IPV4_PROTOCOL::UDP: {
             udp->on_recv(buf, size, l3_context);
+            break;
+        }
+        case IPV4_PROTOCOL::TCP: {
+            tcp->on_recv(buf, size, l3_context);
             break;
         }
         default:

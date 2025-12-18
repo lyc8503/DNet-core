@@ -23,7 +23,7 @@ uint16_t checksum_16bit_be(const void *src, size_t len) {
     }
 
     if (len > 0) {
-        ret += (*(uint8_t *) buf) << 8;
+        ret += *(uint8_t *) buf;
     }
 
     ret = ~((ret >> 16) + ret & 0xffff);

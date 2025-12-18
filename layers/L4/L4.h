@@ -33,6 +33,7 @@ private:
 
     DNet& context;
     class UDP* udp;
+    class TCP* tcp;
 
 };
 
