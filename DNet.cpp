@@ -115,6 +115,10 @@ void DNet::L4_on_recv(void *buf, size_t size, L3Context l3_context) {
     this->transport_layer->on_recv(buf, size, l3_context);
 }
 
-ssize_t DNet::L4_send(void*buf, size_t size, L3Context l3_context) {
+ssize_t DNet::L4_send(void* buf, size_t size, L3Context l3_context) {
     return this->transport_layer->send(buf, size, l3_context);
+}
+
+ssize_t DNet::UDP_send(void* buf, size_t size, Ipv4Address dest, uint16_t dest_port, Ipv4Address src, uint16_t src_port) {
+    return this->transport_layer->udp->send(buf, size, dest, dest_port, src, src_port);
 }

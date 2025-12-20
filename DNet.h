@@ -11,6 +11,7 @@
 #include "layers/L2/L2.h"
 #include "layers/L3/L3.h"
 #include "layers/L4/L4.h"
+#include "layers/L4/udp/UDP.h"
 #include <optional>
 
 class L2;
@@ -34,6 +35,8 @@ public:
     ssize_t L3_send(Ipv4Address src, Ipv4Address target, IPV4_PROTOCOL protocol, void* buf, size_t size);
 
     ssize_t L4_send(void*buf, size_t size, L3Context l3_context);
+
+    ssize_t UDP_send(void* buf, size_t size, Ipv4Address dest, uint16_t dest_port, Ipv4Address src, uint16_t src_port);
     
     void L4_on_recv(void* buf, size_t size, L3Context l3_context);
 

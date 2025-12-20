@@ -29,12 +29,12 @@ public:
     void on_recv(void* buf, size_t size, L3Context l3_context);
     size_t send(void* buf, size_t size, L3Context l3_context);
 
-private:
-
-    DNet& context;
     class UDP* udp;
     class TCP* tcp;
 
+private:
+
+    DNet& context;
 };
 
 #endif  // DNET_L4_H

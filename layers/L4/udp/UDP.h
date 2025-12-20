@@ -8,7 +8,7 @@
 #include "../../../DNet.h"
 #include "../../../defs.h"
 
-struct L3Context;
+class DNS;
 
 // https://en.wikipedia.org/wiki/User_Datagram_Protocol
 struct UdpDatagram {
@@ -33,10 +33,12 @@ public:
 
     explicit UDP(DNet& context);
     void on_recv(void* buf, size_t size, L3Context l3_context);
+    ssize_t send(void* buf, size_t size, Ipv4Address dest, uint16_t dest_port, Ipv4Address src, uint16_t src_port);
 
 private:
 
     DNet& context;
+    DNS* dns;
 };
 
 

@@ -3,11 +3,13 @@
 //
 
 #include "UDP.h"
+#include "../../L7/DNS.h"
 
-UDP::UDP(DNet &context) : context(context) {}
+UDP::UDP(DNet &context) : context(context) {
+    dns = new DNS(context);
+}
 
 void UDP::on_recv(void *buf, size_t size, L3Context l3_context) {
-    
     auto *datagram = (UdpDatagram *) buf;
     DNET_DEBUG("L4 UDP recv: %s", datagram->to_string().c_str());
 
@@ -37,26 +39,39 @@ void UDP::on_recv(void *buf, size_t size, L3Context l3_context) {
         DNET_ASSERT(expected == checksum, "Checksum mismatch");
     }
 
+    if (datagram->dest_port.val() == 53) {
+        // DNS
+        dns->on_recv(datagram->data, size - sizeof(UdpDatagram), l3_context.src_ip, datagram->src_port.val(), l3_context.dest_ip, datagram->dest_port.val());
+        return;
+    }
+
     // ToUpper & Echo (test here)
-    L3Context con;
-    con.protocol = IPV4_PROTOCOL::UDP;
-    con.src_ip = l3_context.dest_ip;
-    con.dest_ip = l3_context.src_ip;
-
-    uint8_t reply[size];
-    auto* reply_datagram = (UdpDatagram*) reply;
-    reply_datagram->length = datagram->length;
-    reply_datagram->dest_port = datagram->src_port;
-    reply_datagram->src_port = datagram->dest_port;
-    reply_datagram->checksum = 0x0000;  // TODO: calculate the checksum
-    memcpy(reply_datagram->data, datagram->data, size - sizeof(UdpDatagram));
-
-    for (size_t i = sizeof(UdpDatagram); i < size; i++) {
-        if (reply[i] >= 'a' && reply[i] <= 'z') {
-            reply[i] += 'A' - 'a';
+    uint8_t reply_data[size - sizeof(UdpDatagram)];
+    memcpy(reply_data, datagram->data, size - sizeof(UdpDatagram));
+    for (size_t i = 0; i < size - sizeof(UdpDatagram); i++) {
+        if (reply_data[i] >= 'a' && reply_data[i] <= 'z') {
+            reply_data[i] += 'A' - 'a';
         }
     }
 
-    DNET_DEBUG("L4 send: %s", reply_datagram->to_string().c_str());
-    context.L4_send(reply_datagram, size, con);
+    send(reply_data, size - sizeof(UdpDatagram), l3_context.src_ip, datagram->src_port.val(), l3_context.dest_ip, datagram->dest_port.val());
+}
+
+ssize_t UDP::send(void* buf, size_t size, Ipv4Address dest, uint16_t dest_port, Ipv4Address src, uint16_t src_port) {
+    size_t buf_len = size + sizeof(UdpDatagram);
+    uint8_t datagram_buf[buf_len];
+    auto* datagram = (UdpDatagram*) datagram_buf;
+    datagram->src_port = src_port;
+    datagram->dest_port = dest_port;
+    datagram->length = buf_len;
+    datagram->checksum = 0x0000;  // UDP checksum is optional for IPv4, set to 0
+    memcpy(datagram->data, buf, size);
+
+    DNET_DEBUG("L4 UDP send: %s", datagram->to_string().c_str());
+    L3Context l3_context{
+        .src_ip = src,
+        .dest_ip = dest,
+        .protocol = IPV4_PROTOCOL::UDP
+    };
+    return context.L4_send(datagram, buf_len, l3_context);
 }
