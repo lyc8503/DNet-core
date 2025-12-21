@@ -68,7 +68,7 @@ void DNS::on_recv(void* buf, size_t size, Ipv4Address src_addr, uint16_t src_por
     auto header = (DNSHeader*) response_buf;
     header->qr = 1;  // response
     header->aa = DNS_AUTHORITATIVE_ANSWER;  // authoritative answer
-    header->ancount = 0;
+    header->ancount = 1;
 
     auto resource = (DNSResourceRecord*)(response_buf + size);
     resource->name = 0xc00c;  // pointer to domain name in question
