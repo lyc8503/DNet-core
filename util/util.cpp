@@ -31,3 +31,12 @@ uint16_t checksum_16bit_be(const void *src, size_t len) {
     // TODO: If the computed checksum is zero, it is transmitted as all ones
     return reinterpret_cast<uint16_be*>(&ret)->val();
 }
+
+std::string bytes_to_hex_string(const uint8_t* bytes, size_t len) {
+    std::stringstream stream;
+    stream << std::hex << std::setfill('0');
+    for (size_t i = 0; i < len; i++) {
+        stream << std::setw(2) << (unsigned int)bytes[i];
+    }
+    return stream.str();
+}

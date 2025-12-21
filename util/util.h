@@ -19,4 +19,6 @@ std::string int_to_hex(T i) {
     return stream.str();
 }
 
+std::string bytes_to_hex_string(const uint8_t* bytes, size_t len);
+
 #endif //DNET_UTIL_H

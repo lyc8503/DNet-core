@@ -11,6 +11,7 @@
 #define TYPE_PTR 12
 #define TYPE_MX 15
 #define TYPE_TXT 16
+#define TYPE_AAAA 28
 #define QTYPE_ALL 255
 
 #define CLASS_IN 1
@@ -26,12 +27,21 @@ do { \
     Ipv4Address addr; \
     addr.parse_string(ip); \
     record_key key = std::make_tuple(TYPE_A, std::string(name)); \
-    uint32_t ip_val = addr.data.val(); \
     uint8_t* data = new uint8_t[4]; \
-    memcpy(data, &ip_val, 4); \
+    memcpy(data, addr.bytes, 4); \
     record_value value = std::make_tuple(4, data); \
-    dns_records[key] = value; \
+    dns_records.emplace(key, value); \
 } while(0)
+
+#define REGISTER_GENERIC_RECORD(rtype, name, rdata_len, rdata_ptr) \
+do { \
+    record_key key = std::make_tuple(rtype, std::string(name)); \
+    uint8_t* data = new uint8_t[rdata_len]; \
+    memcpy(data, rdata_ptr, rdata_len); \
+    record_value value = std::make_tuple(rdata_len, data); \
+    dns_records.emplace(key, value); \
+} while(0)
+
 
 struct DNSHeader {
     uint16_be id;
@@ -91,7 +101,7 @@ public:
 private:
 
     DNet& dnet;
-    std::unordered_map<record_key, record_value> dns_records;
+    std::unordered_multimap<record_key, record_value> dns_records;
 };
 
 #endif  // DNET_DNS_H

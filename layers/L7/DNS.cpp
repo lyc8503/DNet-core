@@ -42,41 +42,54 @@ void DNS::on_recv(void* buf, size_t size, Ipv4Address src_addr, uint16_t src_por
         }
     }
 
-    auto response_iter = dns_records.find(std::make_tuple(qtype.val(), std::string(query_name)));
+    auto range = dns_records.equal_range(std::make_tuple(qtype.val(), std::string(query_name)));
+    auto response_iter = range.first;
     if (response_iter == dns_records.end()) {
-        // Actually this is a documented bad case in RFC4074, TODO: return empty ans for AAAA instead of NXDOMAIN
-        DNET_DEBUG("No DNS record found for query, sending NXDOMAIN");
+        // Return NXDOMAIN for missing AAAA records is a documented bad case in RFC4074
+        // So I'm going to return NOERROR and an empty answer section for all unknown queries (?)
+        DNET_DEBUG("No DNS record found for query, sending empty answer");
 
         size_t response_size = size;
         uint8_t response_buf[512];
         memcpy(response_buf, buf, size);
         auto header = (DNSHeader*) response_buf;
         header->qr = 1;  // response
-        header->rcode = 3;  // NXDOMAIN
+        header->rcode = 0;  // NOERROR
 
         dnet.UDP_send(response_buf, response_size, src_addr, src_port, dest_addr, dest_port);
         return;
     }
 
-    auto response = response_iter->second;
-    DNET_DEBUG("DNS record found, length: %d", std::get<0>(response_iter->second));
-
     // construct response packet
-    size_t response_size = size + sizeof(DNSResourceRecord) + std::get<0>(response);  // record header + rdata
+    // truncate original packet (remove additional section) and append answer
+    size_t truncated_request_size = (size_t)(data_ptr + 5 - (uint8_t*)packet);  // header + question section size
+    size_t response_size = truncated_request_size;
+    
     uint8_t response_buf[512];
-    memcpy(response_buf, buf, size);
+    memcpy(response_buf, buf, truncated_request_size);
+    DNET_DEBUG("Truncated request: %s", bytes_to_hex_string(response_buf, truncated_request_size).c_str());
+
     auto header = (DNSHeader*) response_buf;
     header->qr = 1;  // response
     header->aa = DNS_AUTHORITATIVE_ANSWER;  // authoritative answer
-    header->ancount = 1;
-
-    auto resource = (DNSResourceRecord*)(response_buf + size);
-    resource->name = 0xc00c;  // pointer to domain name in question
-    resource->type = qtype;
-    resource->class_ = qclass;
-    resource->ttl = DNS_DEFAULT_TTL;
-    resource->rdlength = (uint16_be) std::get<0>(response);
-    memcpy(resource->rdata, std::get<1>(response), std::get<0>(response));
+    header->ancount = 0;  // will be updated later
+    header->arcount = 0;  // no additional
+    header->nscount = 0;
+    
+    for (auto it = response_iter; it != range.second; ++it) {
+        auto response = it->second;
+        DNET_DEBUG("DNS record found, length: %d, data: %s", std::get<0>(response), bytes_to_hex_string((const uint8_t*)std::get<1>(response), std::get<0>(response)).c_str());
+        
+        header->ancount = header->ancount.val() + 1;
+        auto resource = (DNSResourceRecord*)(response_buf + response_size);
+        resource->name = 0xc00c;  // pointer to domain name in question
+        resource->type = qtype;
+        resource->class_ = qclass;
+        resource->ttl = DNS_DEFAULT_TTL;
+        resource->rdlength = (uint16_be) std::get<0>(response);
+        memcpy(resource->rdata, std::get<1>(response), std::get<0>(response));
+        response_size += sizeof(DNSResourceRecord) + std::get<0>(response);
+    }
 
     dnet.UDP_send(response_buf, response_size, src_addr, src_port, dest_addr, dest_port);
 }
