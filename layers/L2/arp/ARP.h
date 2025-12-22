@@ -72,7 +72,7 @@ public:
 private:
     DNet& context;
 
-    std::unordered_map<Ipv4Address, ArpCacheEntry, Ipv4AddressHasher> cache;
+    std::unordered_map<Ipv4Address, ArpCacheEntry> cache;
 
 };
 

@@ -230,13 +230,16 @@ union Ipv4Address {
     }
 } __attribute__((packed));
 
-struct Ipv4AddressHasher
-{
-    std::size_t operator()(Ipv4Address const& s) const
+namespace std {
+    template<>
+    struct hash<Ipv4Address>
     {
-        return s.data.val();
-    }
-};
+        std::size_t operator()(Ipv4Address const& s) const
+        {
+            return s.data.val();
+        }
+    };
+}
 
 struct Ipv4Subnet {
 
