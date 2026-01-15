@@ -33,6 +33,33 @@ do { \
     dns_records.emplace(key, value); \
 } while(0)
 
+
+#define REGISTER_CNAME_RECORD(name, cname) \
+do { \
+    size_t cname_len = strlen(cname); \
+    uint8_t* cname_data = new uint8_t[cname_len + 2]; \
+    uint8_t l = 0; \
+    size_t ptr = 0; \
+    for (size_t i = 0; ; i++) { \
+        if (cname[i] == '.' || cname[i] == '\0') { \
+            cname_data[ptr] = l; \
+            memcpy(&cname_data[ptr + 1], &cname[i - l], l); \
+            ptr += l + 1; \
+            l = 0; \
+            if (cname[i] == '\0') { \
+                cname_data[ptr] = 0; \
+                break; \
+            } \
+            continue; \
+        } \
+        l ++; \
+    } \
+    record_key key = std::make_tuple(TYPE_CNAME, std::string(name)); \
+    record_value value = std::make_tuple(cname_len + 2, cname_data); \
+    dns_records.emplace(key, value); \
+} while(0)
+
+
 #define REGISTER_GENERIC_RECORD(rtype, name, rdata_len, rdata_ptr) \
 do { \
     record_key key = std::make_tuple(rtype, std::string(name)); \

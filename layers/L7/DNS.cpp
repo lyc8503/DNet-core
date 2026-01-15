@@ -45,19 +45,26 @@ void DNS::on_recv(void* buf, size_t size, Ipv4Address src_addr, uint16_t src_por
     auto range = dns_records.equal_range(std::make_tuple(qtype.val(), std::string(query_name)));
     auto response_iter = range.first;
     if (response_iter == dns_records.end()) {
-        // Return NXDOMAIN for missing AAAA records is a documented bad case in RFC4074
-        // So I'm going to return NOERROR and an empty answer section for all unknown queries (?)
-        DNET_DEBUG("No DNS record found for query, sending empty answer");
+        auto cname_range = dns_records.equal_range(std::make_tuple(TYPE_CNAME, std::string(query_name)));
+        if (cname_range.first != cname_range.second) {
+            DNET_DEBUG("No DNS record found for query, but CNAME exists");
+            response_iter = cname_range.first;
+            range = cname_range;
+        } else {
+            // Return NXDOMAIN for missing AAAA records is a documented bad case in RFC4074
+            // So I'm going to return NOERROR and an empty answer section for all unknown queries (?)
+            DNET_DEBUG("No DNS record found for query, sending empty answer");
 
-        size_t response_size = size;
-        uint8_t response_buf[512];
-        memcpy(response_buf, buf, size);
-        auto header = (DNSHeader*) response_buf;
-        header->qr = 1;  // response
-        header->rcode = 0;  // NOERROR
+            size_t response_size = size;
+            uint8_t response_buf[512];
+            memcpy(response_buf, buf, size);
+            auto header = (DNSHeader*) response_buf;
+            header->qr = 1;  // response
+            header->rcode = 0;  // NOERROR
 
-        dnet.UDP_send(response_buf, response_size, src_addr, src_port, dest_addr, dest_port);
-        return;
+            dnet.UDP_send(response_buf, response_size, src_addr, src_port, dest_addr, dest_port);
+            return;
+        }
     }
 
     // construct response packet

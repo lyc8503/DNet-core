@@ -1,5 +1,7 @@
 # DNet-core
-An implementation of TCP/IP network stack in user space. DNet stands for DisconNet, inspired by diaoda and Cierra.
+An implementation of TCP/IP network stack in user space that barely works. DNet stands for DisconNet, inspired by diaoda and Cierra.
+
+If any implementation happens to follow the corresponding RFC, it is purely coincidental.
 
 #### 目前已经实现的内容
 - Linux 下虚拟网卡的创建与配置
@@ -8,6 +10,8 @@ An implementation of TCP/IP network stack in user space. DNet stands for DisconN
 - ARP Resulotion / ARP Reply
 - IPv4 Packet 的解析与构造
 - UDP 包的接收与发送 (简易的 UDP Echo)
+- DNS 权威服务器
+- TCP 仍在施工中...
 
 #### 项目文件结构
 ```
@@ -38,7 +42,7 @@ cd DNet-core && mkdir build && cd build && cmake .. && make
 sudo mknod /dev/net/tap c 10 200
 
 # 运行 DNet
-sudo ./DNet
+sudo ./DNet dnet0 1280 11:45:14:19:19:81 10.0.0.0 255.255.255.0
 ```
 
 运行后会创建 TAP 设备, 可使用 ifconfig 或 ip a 查看, 默认会使用 10.0.0.0/24 段, 可以测试 arping/ping/UDP Echo, 如和局域网有冲突可修改 main.cpp 中的 IP 段.
@@ -48,4 +52,3 @@ sudo ./DNet
 - 实现常见的一些应用层协议
 - 设计 HTTP 接口供外部访问修改
 - 整理相关代码(目前在设计上比较杂乱)
-- 关于 Web 前端的部分将在 https://github.com/NJU-uFFFD/DNet-webui 中实现
