@@ -27,10 +27,7 @@ void register_dns_records(std::unordered_multimap<record_key, record_value>& dns
         6,
         "\x03""ns2""\xc0\x0c"
     );
-    REGISTER_GENERIC_RECORD(TYPE_CNAME, "www.example.com",
-        18,
-        "\x04""test""\x07""example""\x03""com""\x00"
-    );
+    REGISTER_CNAME_RECORD("www.example.com", "test.example.com");
 }
 
 #endif  // DNET_DNS_RECORD_H

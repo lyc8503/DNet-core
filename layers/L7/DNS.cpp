@@ -90,7 +90,7 @@ void DNS::on_recv(void* buf, size_t size, Ipv4Address src_addr, uint16_t src_por
         header->ancount = header->ancount.val() + 1;
         auto resource = (DNSResourceRecord*)(response_buf + response_size);
         resource->name = 0xc00c;  // pointer to domain name in question
-        resource->type = qtype;
+        resource->type = uint16_be(std::get<0>(it->first));
         resource->class_ = qclass;
         resource->ttl = DNS_DEFAULT_TTL;
         resource->rdlength = (uint16_be) std::get<0>(response);
