@@ -11,7 +11,6 @@ struct L3Context;
 
 #define WINDOW_SIZE 65535
 
-
 // https://en.wikipedia.org/wiki/Transmission_Control_Protocol
 struct TcpSegment {
     uint16_be src_port;
@@ -49,6 +48,22 @@ struct TcpSegment {
         return ss.str();
     }
 } __attribute__((packed));
+
+
+#define TCP_CHECKSUM(segment, seg_src_ip, seg_dst_ip, body, body_len) ({ \
+    uint16_t checksum; \
+    uint8_t pseudo_header_buf[sizeof(PseudoHeader) + sizeof(TcpSegment) + body_len]; \
+    auto* pseudo_header = (PseudoHeader*) pseudo_header_buf; \
+    pseudo_header->src_ip = seg_src_ip; \
+    pseudo_header->dest_ip = seg_dst_ip; \
+    pseudo_header->zero = 0; \
+    pseudo_header->protocol = (uint8_t) IPV4_PROTOCOL::TCP; \
+    pseudo_header->length = uint16_be(sizeof(TcpSegment) + body_len); \
+    memcpy(pseudo_header_buf + sizeof(PseudoHeader), segment, sizeof(TcpSegment)); \
+    memcpy(pseudo_header_buf + sizeof(PseudoHeader) + sizeof(TcpSegment), body, body_len); \
+    checksum = checksum_16bit_be(pseudo_header_buf, sizeof(PseudoHeader) + sizeof(TcpSegment) + body_len); \
+    checksum; \
+})
 
 
 enum TcpState {
@@ -100,7 +115,6 @@ struct TcpConn {
     uint32_t snd_una;  // send unacknowledged
     uint32_t snd_nxt;  // send next
     uint32_t rcv_nxt;  // receive next
-
 
     TcpConn() : state(CLOSED) {};
 };
