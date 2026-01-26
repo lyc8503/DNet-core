@@ -87,6 +87,7 @@ void TCP::on_recv(void* buf, size_t size, L3Context l3_context) {
                 // DROP THE PAYLOAD
                 
                 conn->rcv_nxt = segment->seq.val() + payload_size;
+
                 // Send ACK
                 rsegment->seq = conn->snd_nxt;
                 rsegment->ack = uint32_be(conn->rcv_nxt);
@@ -101,6 +102,7 @@ void TCP::on_recv(void* buf, size_t size, L3Context l3_context) {
                     }
                 }
                 rsegment->checksum = TCP_CHECKSUM(rsegment, tuple.dest_ip, tuple.src_ip, rbuf + sizeof(TcpSegment), payload_size);
+                conn->snd_nxt += payload_size;
 
                 DNET_DEBUG("L4 TCP send %s: %s", tuple.to_string().c_str(), rsegment->to_string().c_str());
                 context.L4_send(rbuf, sizeof(TcpSegment) + payload_size, rcontext);
