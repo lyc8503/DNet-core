@@ -13,7 +13,6 @@ void TCP::on_recv(void* buf, size_t size, L3Context l3_context) {
     auto it = connections.find(tuple);
     if (it == connections.end()) {
         // No existing connection, it should be a SYN packet from a client to establish a new connection
-        // TODO: improve this init
         if (!segment->flag_bits.syn) {
             DNET_DEBUG("TCP %s has no SYN flag nor existing connection, dropping", tuple.to_string().c_str());
             return;
@@ -84,8 +83,13 @@ void TCP::on_recv(void* buf, size_t size, L3Context l3_context) {
                 DNET_DEBUG("TCP connection %s received in-order packet with payload size %d", tuple.to_string().c_str(), payload_size);
 
                 DNET_DEBUG("TCP connection %s received payload: %s", tuple.to_string().c_str(), std::string((char*)buf + header_size, payload_size).c_str());
-                // DROP THE PAYLOAD
                 
+                if(!conn->rcvbuf.writeAll((uint8_t*)buf + header_size, payload_size)) {
+                    DNET_DEBUG("TCP connection %s receive buffer full, dropping packet", tuple.to_string().c_str());
+                    // TODO: call application layer
+                    return;
+                }
+                DNET_DEBUG("TCP connection %s receive buffer size: %d", tuple.to_string().c_str(), conn->rcvbuf.size());
                 conn->rcv_nxt = segment->seq.val() + payload_size;
 
                 // Send ACK
@@ -94,18 +98,19 @@ void TCP::on_recv(void* buf, size_t size, L3Context l3_context) {
                 rsegment->data_offset = (sizeof(TcpSegment) / 4) << 4;
                 rsegment->flag_bits.ack = 1;
                 rsegment->window = uint16_be(WINDOW_SIZE);
-                memcpy(rbuf + sizeof(TcpSegment), buf + header_size, payload_size);  // echo back the payload (for testing)  
-                for (uint16_t i = 0; i < payload_size; i++) {
-                    // to upper case
-                    if (rbuf[sizeof(TcpSegment) + i] >= 'a' && rbuf[sizeof(TcpSegment) + i] <= 'z') {
-                        rbuf[sizeof(TcpSegment) + i] = rbuf[sizeof(TcpSegment) + i] - 'a' + 'A';
-                    }
-                }
-                rsegment->checksum = TCP_CHECKSUM(rsegment, tuple.dest_ip, tuple.src_ip, rbuf + sizeof(TcpSegment), payload_size);
-                conn->snd_nxt += payload_size;
+                // memcpy(rbuf + sizeof(TcpSegment), buf + header_size, payload_size);  // echo back the payload (for testing)  
+                // for (uint16_t i = 0; i < payload_size; i++) {
+                //     // to upper case
+                //     if (rbuf[sizeof(TcpSegment) + i] >= 'a' && rbuf[sizeof(TcpSegment) + i] <= 'z') {
+                //         rbuf[sizeof(TcpSegment) + i] = rbuf[sizeof(TcpSegment) + i] - 'a' + 'A';
+                //     }
+                // }
+                // rsegment->checksum = TCP_CHECKSUM(rsegment, tuple.dest_ip, tuple.src_ip, rbuf + sizeof(TcpSegment), payload_size);
+                // conn->snd_nxt += payload_size;
+                rsegment->checksum = TCP_CHECKSUM(rsegment, tuple.dest_ip, tuple.src_ip, NULL, 0);
 
                 DNET_DEBUG("L4 TCP send %s: %s", tuple.to_string().c_str(), rsegment->to_string().c_str());
-                context.L4_send(rbuf, sizeof(TcpSegment) + payload_size, rcontext);
+                context.L4_send(rbuf, sizeof(TcpSegment), rcontext);
                 DNET_DEBUG("TCP connection %s sent ACK for received data", tuple.to_string().c_str());
             }
             break;

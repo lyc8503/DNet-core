@@ -9,7 +9,8 @@
 
 struct L3Context;
 
-#define WINDOW_SIZE 65535
+#define WINDOW_SIZE 4096
+#define BUFFER_SIZE 65536
 
 // https://en.wikipedia.org/wiki/Transmission_Control_Protocol
 struct TcpSegment {
@@ -106,6 +107,61 @@ namespace std {
     };
 }
 
+struct RingBuffer {
+    uint8_t buf[BUFFER_SIZE];
+
+    size_t start;
+    size_t end;
+
+    int put(uint8_t octet) {
+        if ((end + 1) % BUFFER_SIZE == start) {
+            return 0;
+        }
+        buf[end] = octet;
+        end = (end + 1) % BUFFER_SIZE;
+        return 1;
+    }
+
+    int get(uint8_t* octet) {
+        if (start == end) {
+            return 0;
+        }
+        *octet = buf[start];
+        start = (start + 1) % BUFFER_SIZE;
+        return 1;
+    }
+
+    int size() {
+        return (end - start + BUFFER_SIZE) % BUFFER_SIZE;
+    }
+
+    int capacity() {
+        return BUFFER_SIZE - size();
+    }
+
+    int writeAll(const uint8_t* buf, size_t len) {
+        if (len > capacity()) {
+            return 0;
+        }
+        for (size_t i = 0; i < len; i++) {
+            put(buf[i]);
+        }
+        return 1;
+    }
+
+    int readFull(uint8_t* buf, size_t len) {
+        if (len > size()) {
+            return 0;
+        }
+        for (size_t i = 0; i < len; i++) {
+            get(&buf[i]);
+        }
+        return 1;
+    }
+
+    RingBuffer() : start(0), end(0) {};
+};
+
 
 struct TcpConn {
     TcpConnTuple tuple;
@@ -115,6 +171,9 @@ struct TcpConn {
     uint32_t snd_una;  // send unacknowledged
     uint32_t snd_nxt;  // send next
     uint32_t rcv_nxt;  // receive next
+
+    RingBuffer rcvbuf;
+    RingBuffer sndbuf;
 
     TcpConn() : state(CLOSED) {};
 };
